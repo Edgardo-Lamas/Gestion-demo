@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { supabase } from './lib/supabase';
+import { mockProductos, mockCompras, mockVentas, mockGastos, mockDistribuciones, mockClientes, mockClienteProductos } from './lib/mockData';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import Login from './components/Login';
@@ -12,7 +13,8 @@ import {
   Scale,
   Menu,
   X,
-  HelpCircle
+  HelpCircle,
+  Users
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -23,6 +25,7 @@ import Inventory from './components/Inventory';
 import MeatDistribution from './components/MeatDistribution';
 import B2BStoreFront from './components/B2BStoreFront';
 import MigrationHelper from './components/MigrationHelper';
+import ClientProfiles from './components/ClientProfiles';
 
 function AppContent({ currentView, setCurrentView }) {
   const { logout } = useAuth();
@@ -39,27 +42,51 @@ function AppContent({ currentView, setCurrentView }) {
   const [ventas, setVentas] = useState([]);
   const [gastos, setGastos] = useState([]);
   const [distribuciones, setDistribuciones] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [clienteProductos, setClienteProductos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Funciones de carga inicial
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [{ data: pData }, { data: cData }, { data: vData }, { data: gData }, { data: dData }] = await Promise.all([
+      const [{ data: pData, error: pErr }, { data: cData }, { data: vData }, { data: gData }, { data: dData }, { data: clData }, { data: cpData }] = await Promise.all([
         supabase.from('productos').select('*').order('nombre'),
         supabase.from('compras').select('*').order('fecha', { ascending: false }),
         supabase.from('ventas').select('*').order('fecha', { ascending: false }),
         supabase.from('gastos').select('*').order('fecha', { ascending: false }),
-        supabase.from('distribuciones').select('*').order('fecha', { ascending: false })
+        supabase.from('distribuciones').select('*').order('fecha', { ascending: false }),
+        supabase.from('clientes').select('*').order('nombre'),
+        supabase.from('cliente_productos').select('*')
       ]);
 
-      if (pData) setProductos(pData);
-      if (cData) setCompras(cData);
-      if (vData) setVentas(vData);
-      if (gData) setGastos(gData);
-      if (dData) setDistribuciones(dData);
+      // Si Supabase falla o está pausado, usar datos de demo
+      if (pErr || !pData) {
+        setProductos(mockProductos);
+        setCompras(mockCompras);
+        setVentas(mockVentas);
+        setGastos(mockGastos);
+        setDistribuciones(mockDistribuciones);
+        setClientes(mockClientes);
+        setClienteProductos(mockClienteProductos);
+      } else {
+        if (pData) setProductos(pData);
+        if (cData) setCompras(cData);
+        if (vData) setVentas(vData);
+        if (gData) setGastos(gData);
+        if (dData) setDistribuciones(dData);
+        if (clData) setClientes(clData);
+        if (cpData) setClienteProductos(cpData);
+      }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.warn('Supabase no disponible, cargando datos de demo:', error);
+      setProductos(mockProductos);
+      setCompras(mockCompras);
+      setVentas(mockVentas);
+      setGastos(mockGastos);
+      setDistribuciones(mockDistribuciones);
+      setClientes(mockClientes);
+      setClienteProductos(mockClienteProductos);
     } finally {
       setLoading(false);
     }
@@ -112,6 +139,7 @@ function AppContent({ currentView, setCurrentView }) {
       case 'expenses': return <Expenses gastos={gastos} setGastos={setGastos} onUpdate={fetchData} />;
       case 'inventory': return <Inventory productos={productos} setProductos={setProductos} stock_actual={stock_actual} compras={compras} onUpdate={fetchData} />;
       case 'distribution': return <MeatDistribution distribuciones={distribuciones} setDistribuciones={setDistribuciones} productos={productos} costoPromedio={costoPromedio} ventas={ventas} onUpdate={fetchData} />;
+      case 'clients': return <ClientProfiles clientes={clientes} clienteProductos={clienteProductos} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
       default: return <Dashboard />;
     }
   };
@@ -123,6 +151,7 @@ function AppContent({ currentView, setCurrentView }) {
     { id: 'expenses', label: 'Gastos', icon: Receipt },
     { id: 'inventory', label: 'Stock', icon: Package },
     { id: 'distribution', label: 'Distribución', icon: Scale },
+    { id: 'clients', label: 'Clientes', icon: Users },
   ];
 
   return (
