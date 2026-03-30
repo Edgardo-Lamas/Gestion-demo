@@ -270,6 +270,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                             <tr>
                                 <th>Fecha</th>
                                 <th>Producto</th>
+                                <th>Cliente</th>
                                 <th>Cantidad (kg)</th>
                                 <th>Precio (kg)</th>
                                 <th>Total</th>
@@ -279,7 +280,9 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                         </thead>
                         <tbody>
                             {paginatedVentas.length > 0 ? (
-                                paginatedVentas.map(v => (
+                                paginatedVentas.map(v => {
+                                    const cliente = clientes.find(c => c.id === v.cliente_id);
+                                    return (
                                     <tr key={v.id}>
                                         <td>
                                             <div className="date-badge">
@@ -288,6 +291,12 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                                             </div>
                                         </td>
                                         <td className="fw-600">{v.producto_nombre}</td>
+                                        <td>
+                                            {cliente
+                                                ? <span className="cliente-badge">{cliente.nombre}</span>
+                                                : <span className="sin-cliente">—</span>
+                                            }
+                                        </td>
                                         <td>{v.cantidad_vendida} kg</td>
                                         <td>${v.precio_venta_unitario}</td>
                                         <td className="fw-700 text-primary">${v.ingreso_total.toFixed(2)}</td>
@@ -306,7 +315,8 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                                             </button>
                                         </td>
                                     </tr>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <tr>
                                     <td colSpan="7" className="empty-state">
@@ -603,6 +613,23 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                 .fw-600 { font-weight: 600; }
                 .fw-700 { font-weight: 700; }
                 .text-primary { color: var(--primary); }
+
+                .cliente-badge {
+                    display: inline-block;
+                    background: rgba(249, 115, 22, 0.08);
+                    color: var(--primary);
+                    border: 1px solid rgba(249, 115, 22, 0.2);
+                    padding: 0.2rem 0.6rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    white-space: nowrap;
+                }
+
+                .sin-cliente {
+                    color: var(--text-muted);
+                    font-size: 0.9rem;
+                }
 
                 .profit-badge {
                     padding: 0.25rem 0.5rem;
