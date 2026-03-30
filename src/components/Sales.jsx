@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 
 import { supabase } from '../lib/supabase';
 
-const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, onUpdate }) => {
+const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, clientes = [], clienteProductos = [], onUpdate }) => {
     const { addToast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +20,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, onUpda
         cantidad_vendida: '',
         precio_venta_unitario: '',
         margen_ganancia: '',
+        cliente_id: '',
         fecha: new Date().toISOString().split('T')[0]
     });
 
@@ -35,6 +36,17 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, onUpda
         return { prod, costo, ultimaVenta, lotes };
     }, [nuevaVenta.producto_id, productos, costoPromedio, ventas, compras]);
 
+    // Precio personalizado del cliente para un producto dado
+    const getPrecioCliente = (cliente_id, producto_id) => {
+        if (!cliente_id || !producto_id) return null;
+        const cp = clienteProductos.find(cp => cp.cliente_id === cliente_id && cp.producto_id === producto_id);
+        if (!cp) return null;
+        const costo = costoPromedio[producto_id] || 0;
+        if (cp.precio_fijo > 0) return cp.precio_fijo;
+        if (cp.margen_personalizado && costo > 0) return costo * (1 + cp.margen_personalizado / 100);
+        return null;
+    };
+
     // Al seleccionar un producto, autocompletar precio y margen
     const handleProductoChange = (producto_id) => {
         if (!producto_id) {
@@ -46,22 +58,39 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, onUpda
         const costo = costoPromedio[producto_id] || 0;
         const ultimaVenta = ventas.find(v => v.producto_id === producto_id);
 
+        // Si hay cliente seleccionado con precio personalizado, usarlo primero
+        const precioCliente = getPrecioCliente(nuevaVenta.cliente_id, producto_id);
+        if (precioCliente) {
+            const margen = costo > 0 ? (((precioCliente - costo) / costo) * 100).toFixed(1) : '';
+            setNuevaVenta({ ...nuevaVenta, producto_id, precio_venta_unitario: precioCliente.toFixed(2), margen_ganancia: margen });
+            return;
+        }
+
         let precio = '';
         let margen = prod?.margen_ganancia || '';
 
         if (margen && costo > 0) {
-            // Calcular precio desde margen guardado
             precio = (costo * (1 + parseFloat(margen) / 100)).toFixed(2);
         } else if (ultimaVenta) {
-            // Usar último precio de venta
             precio = ultimaVenta.precio_venta_unitario.toString();
-            // Calcular margen inverso si hay costo
             if (costo > 0) {
                 margen = (((ultimaVenta.precio_venta_unitario - costo) / costo) * 100).toFixed(1);
             }
         }
 
         setNuevaVenta({ ...nuevaVenta, producto_id, precio_venta_unitario: precio, margen_ganancia: margen });
+    };
+
+    // Al seleccionar cliente, si ya hay producto elegido recalcular precio
+    const handleClienteChange = (cliente_id) => {
+        const precioCliente = getPrecioCliente(cliente_id, nuevaVenta.producto_id);
+        const costo = costoPromedio[nuevaVenta.producto_id] || 0;
+        if (precioCliente) {
+            const margen = costo > 0 ? (((precioCliente - costo) / costo) * 100).toFixed(1) : '';
+            setNuevaVenta({ ...nuevaVenta, cliente_id, precio_venta_unitario: precioCliente.toFixed(2), margen_ganancia: margen });
+        } else {
+            setNuevaVenta({ ...nuevaVenta, cliente_id });
+        }
     };
 
     // Al cambiar el margen, recalcular el precio
@@ -134,7 +163,8 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, onUpda
                 precio_venta_unitario: precio_venta_unitario,
                 ingreso_total: ingreso_total,
                 costo_calculado: costo_total,
-                ganancia: ganancia
+                ganancia: ganancia,
+                cliente_id: nuevaVenta.cliente_id || null
             };
 
             // Ejecutar las peticiones a Supabase
@@ -177,6 +207,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, onUpda
                 cantidad_vendida: '',
                 precio_venta_unitario: '',
                 margen_ganancia: '',
+                cliente_id: '',
                 fecha: new Date().toISOString().split('T')[0]
             });
 
@@ -312,6 +343,24 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, onUpda
                 title="Registrar Nueva Venta"
             >
                 <form onSubmit={handleVenta} className="modal-form">
+                    {/* Selector de cliente */}
+                    {clientes.length > 0 && (
+                        <div className="form-group">
+                            <label>Cliente (opcional)</label>
+                            <div className="select-wrapper">
+                                <select
+                                    value={nuevaVenta.cliente_id}
+                                    onChange={(e) => handleClienteChange(e.target.value)}
+                                >
+                                    <option value="">— Venta sin cliente —</option>
+                                    {clientes.map(c => (
+                                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="form-group">
                         <label>Producto</label>
                         <div className="select-wrapper">

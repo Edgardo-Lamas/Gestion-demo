@@ -136,7 +136,7 @@ function AppContent({ currentView, setCurrentView }) {
     switch (activeTab) {
       case 'dashboard': return <Dashboard compras={compras} ventas={ventas} gastos={gastos} />;
       case 'purchases': return <Purchases productos={productos} setProductos={setProductos} compras={compras} setCompras={setCompras} onUpdate={fetchData} />;
-      case 'sales': return <Sales productos={productos} setProductos={setProductos} compras={compras} setCompras={setCompras} ventas={ventas} setVentas={setVentas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
+      case 'sales': return <Sales productos={productos} setProductos={setProductos} compras={compras} setCompras={setCompras} ventas={ventas} setVentas={setVentas} stock_actual={stock_actual} costoPromedio={costoPromedio} clientes={clientes} clienteProductos={clienteProductos} onUpdate={fetchData} />;
       case 'expenses': return <Expenses gastos={gastos} setGastos={setGastos} onUpdate={fetchData} />;
       case 'inventory': return <Inventory productos={productos} setProductos={setProductos} stock_actual={stock_actual} compras={compras} onUpdate={fetchData} />;
       case 'distribution': return <MeatDistribution distribuciones={distribuciones} setDistribuciones={setDistribuciones} productos={productos} costoPromedio={costoPromedio} ventas={ventas} onUpdate={fetchData} />;
