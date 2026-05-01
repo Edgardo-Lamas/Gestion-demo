@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Scale, Trash2, Plus, Calculator, Truck, DollarSign, TrendingUp, Users, ArrowDownToLine } from 'lucide-react';
 import { calculateMeatSaleDistribution } from '../utils/meatDistribution';
 import Modal from './ui/Modal';
@@ -21,6 +21,18 @@ function MeatDistribution({ distribuciones, productos = [], costoPromedio = {}, 
   });
 
   const [resultado, setResultado] = useState(null);
+
+  // Precio base derivado del costo promedio del producto seleccionado
+  // Si el usuario lo editó manualmente se usa ese valor, sino el calculado
+  const computedBasePrice = useMemo(() => {
+    if (!form.producto) return '';
+    const prod = productos.find(p => p.nombre === form.producto);
+    if (!prod) return '';
+    const costo = costoPromedio[prod.id];
+    return costo > 0 ? costo.toFixed(2) : '';
+  }, [form.producto, costoPromedio, productos]);
+
+  const effectiveBasePrice = form.base_price !== '' ? form.base_price : computedBasePrice;
 
   const fmt = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(n);
 
@@ -52,7 +64,7 @@ function MeatDistribution({ distribuciones, productos = [], costoPromedio = {}, 
 
   const handleCalcular = (e) => {
     e.preventDefault();
-    const base_price = parseFloat(form.base_price);
+    const base_price = parseFloat(effectiveBasePrice);
     const shipping_cost = parseFloat(form.shipping_cost);
     const sale_price = parseFloat(form.sale_price);
     const partner_share_percentage = parseFloat(form.partner_share_percentage);
@@ -82,7 +94,7 @@ function MeatDistribution({ distribuciones, productos = [], costoPromedio = {}, 
       fecha: new Date().toISOString().split('T')[0],
       producto_id: productos.find(p => p.nombre === resultado.producto)?.id || null,
       cantidad_kg: cantidad,
-      precio_base: parseFloat(form.base_price),
+      precio_base: parseFloat(effectiveBasePrice),
       shipping_cost: parseFloat(form.shipping_cost),
       precio_venta: resultado.sale_price,
       partner_share_percentage: parseFloat(form.partner_share_percentage),
@@ -198,7 +210,7 @@ function MeatDistribution({ distribuciones, productos = [], costoPromedio = {}, 
           <div className="form-grid-2">
             <div className="form-group">
               <label>Precio base ($/kg)</label>
-              <input name="base_price" type="number" min="0" step="0.01" placeholder="4100" value={form.base_price} onChange={handleChange} required />
+              <input name="base_price" type="number" min="0" step="0.01" placeholder="4100" value={effectiveBasePrice} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label>Costo de flete ($/kg)</label>
