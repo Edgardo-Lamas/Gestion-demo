@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { mockProductos, mockCompras, mockVentas, mockGastos, mockDistribuciones, mockClientes, mockClienteProductos } from './lib/mockData';
+import { mockProductos, mockCompras, mockVentas, mockGastos, mockDistribuciones, mockClientes } from './lib/mockData';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { AuthProvider, useAuth } from './lib/AuthContext';
 import Login from './components/Login';
@@ -24,7 +24,7 @@ import Expenses from './components/Expenses';
 import Inventory from './components/Inventory';
 import MeatDistribution from './components/MeatDistribution';
 import B2BStoreFront from './components/B2BStoreFront';
-import MigrationHelper from './components/MigrationHelper';
+
 import ClientProfiles from './components/ClientProfiles';
 import Entrega from './components/Entrega';
 
@@ -44,21 +44,19 @@ function AppContent({ currentView, setCurrentView }) {
   const [gastos, setGastos] = useState([]);
   const [distribuciones, setDistribuciones] = useState([]);
   const [clientes, setClientes] = useState([]);
-  const [clienteProductos, setClienteProductos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Funciones de carga inicial
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [{ data: pData, error: pErr }, { data: cData }, { data: vData }, { data: gData }, { data: dData }, { data: clData }, { data: cpData }] = await Promise.all([
+      const [{ data: pData, error: pErr }, { data: cData }, { data: vData }, { data: gData }, { data: dData }, { data: clData }] = await Promise.all([
         supabase.from('productos').select('*').order('nombre'),
         supabase.from('compras').select('*').order('fecha', { ascending: false }),
         supabase.from('ventas').select('*').order('fecha', { ascending: false }),
         supabase.from('gastos').select('*').order('fecha', { ascending: false }),
         supabase.from('distribuciones').select('*').order('fecha', { ascending: false }),
         supabase.from('clientes').select('*').order('nombre'),
-        supabase.from('cliente_productos').select('*')
       ]);
 
       // Si Supabase falla o está pausado, usar datos de demo
@@ -69,7 +67,6 @@ function AppContent({ currentView, setCurrentView }) {
         setGastos(mockGastos);
         setDistribuciones(mockDistribuciones);
         setClientes(mockClientes);
-        setClienteProductos(mockClienteProductos);
       } else {
         if (pData) setProductos(pData);
         if (cData) setCompras(cData);
@@ -77,7 +74,6 @@ function AppContent({ currentView, setCurrentView }) {
         if (gData) setGastos(gData);
         if (dData) setDistribuciones(dData);
         if (clData) setClientes(clData);
-        if (cpData) setClienteProductos(cpData);
       }
     } catch (error) {
       console.warn('Supabase no disponible, cargando datos de demo:', error);
@@ -87,7 +83,6 @@ function AppContent({ currentView, setCurrentView }) {
       setGastos(mockGastos);
       setDistribuciones(mockDistribuciones);
       setClientes(mockClientes);
-      setClienteProductos(mockClienteProductos);
     } finally {
       setLoading(false);
     }
@@ -135,12 +130,12 @@ function AppContent({ currentView, setCurrentView }) {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <Dashboard compras={compras} ventas={ventas} gastos={gastos} productos={productos} stock_actual={stock_actual} />;
-      case 'purchases': return <Purchases productos={productos} setProductos={setProductos} compras={compras} setCompras={setCompras} onUpdate={fetchData} />;
-      case 'sales': return <Sales productos={productos} setProductos={setProductos} compras={compras} setCompras={setCompras} ventas={ventas} setVentas={setVentas} stock_actual={stock_actual} costoPromedio={costoPromedio} clientes={clientes} clienteProductos={clienteProductos} onUpdate={fetchData} />;
-      case 'expenses': return <Expenses gastos={gastos} setGastos={setGastos} onUpdate={fetchData} />;
-      case 'inventory': return <Inventory productos={productos} setProductos={setProductos} stock_actual={stock_actual} compras={compras} onUpdate={fetchData} />;
-      case 'distribution': return <MeatDistribution distribuciones={distribuciones} setDistribuciones={setDistribuciones} productos={productos} costoPromedio={costoPromedio} ventas={ventas} compras={compras} onUpdate={fetchData} />;
-      case 'clients': return <ClientProfiles clientes={clientes} clienteProductos={clienteProductos} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
+      case 'purchases': return <Purchases productos={productos} compras={compras} onUpdate={fetchData} />;
+      case 'sales': return <Sales productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} clientes={clientes} onUpdate={fetchData} />;
+      case 'expenses': return <Expenses gastos={gastos} onUpdate={fetchData} />;
+      case 'inventory': return <Inventory productos={productos} stock_actual={stock_actual} compras={compras} onUpdate={fetchData} />;
+      case 'distribution': return <MeatDistribution distribuciones={distribuciones} productos={productos} costoPromedio={costoPromedio} ventas={ventas} compras={compras} onUpdate={fetchData} />;
+      case 'clients': return <ClientProfiles clientes={clientes} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
       default: return <Dashboard />;
     }
   };

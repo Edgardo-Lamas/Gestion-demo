@@ -6,7 +6,7 @@ import { useToast } from '../context/ToastContext';
 
 import { supabase } from '../lib/supabase';
 
-const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, clientes = [], clienteProductos = [], onUpdate }) => {
+const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, clientes = [], onUpdate }) => {
     const { addToast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
