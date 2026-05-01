@@ -25,7 +25,7 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
     const [cobrarLoading, setCobrarLoading] = useState(false);
 
     const [formData, setFormData] = useState({
-        nombre: '', telefono: '', direccion: '', notas: '', categoria: 'mayorista', margen_ganancia: ''
+        nombre: '', telefono: '', direccion: '', notas: '', categoria: 'mayorista', margen_ganancia: '', es_generico: false
     });
 
     const filteredClients = clientes.filter(c =>
@@ -72,7 +72,8 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
             direccion: client.direccion || '',
             notas: client.notas || '',
             categoria: client.categoria || 'mayorista',
-            margen_ganancia: client.margen_ganancia ?? ''
+            margen_ganancia: client.margen_ganancia ?? '',
+            es_generico: client.es_generico || false
         });
         setIsModalOpen(true);
     };
@@ -89,8 +90,14 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                 direccion: formData.direccion,
                 notas: formData.notas,
                 categoria: formData.categoria,
-                margen_ganancia: parseFloat(formData.margen_ganancia)
+                margen_ganancia: parseFloat(formData.margen_ganancia),
+                es_generico: formData.es_generico
             };
+
+            // Si se marca como genérico, desmarcar cualquier otro primero
+            if (formData.es_generico) {
+                await supabase.from('clientes').update({ es_generico: false }).eq('es_generico', true);
+            }
 
             if (editingClient) {
                 const { error } = await supabase.from('clientes').update(clienteData).eq('id', editingClient.id);
@@ -228,7 +235,7 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                     <div className="stat-card"><ShoppingBag size={20} /><div><span className="stat-value">{stats.totalVentas}</span><span className="stat-label">Compras</span></div></div>
                     <div className="stat-card"><TrendingUp size={20} /><div><span className="stat-value">{fmt(stats.totalComprado)}</span><span className="stat-label">Total Facturado</span></div></div>
                     <div className="stat-card"><Percent size={20} /><div><span className="stat-value">+{selectedClient.margen_ganancia ?? 0}%</span><span className="stat-label">Margen aplicado</span></div></div>
-                    <div className="stat-card"><Calendar size={20} /><div><span className="stat-value">{stats.ultimaCompra ? new Date(stats.ultimaCompra).toLocaleDateString('es-AR') : '—'}</span><span className="stat-label">Última Compra</span></div></div>
+                    <div className="stat-card"><Calendar size={20} /><div><span className="stat-value">{stats.ultimaCompra ? new Date(stats.ultimaCompra + 'T00:00:00').toLocaleDateString('es-AR') : '—'}</span><span className="stat-label">Última Compra</span></div></div>
                 </div>
 
                 {(selectedClient.telefono || selectedClient.direccion || selectedClient.notas) && (
@@ -277,7 +284,7 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                                 <tbody>
                                     {clientSales.slice(0, 20).map(v => (
                                         <tr key={v.id}>
-                                            <td>{new Date(v.fecha).toLocaleDateString('es-AR')}</td>
+                                            <td>{new Date(v.fecha + 'T00:00:00').toLocaleDateString('es-AR')}</td>
                                             <td className="fw-600">{v.producto_nombre}</td>
                                             <td>{v.cantidad_vendida} kg</td>
                                             <td>{fmt(v.precio_venta_unitario)}</td>
@@ -323,6 +330,10 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                             <label>Notas</label>
                             <textarea value={formData.notas} onChange={e => setFormData({ ...formData, notas: e.target.value })} placeholder="Observaciones..." rows={2}></textarea>
                         </div>
+                        <label className="generico-toggle">
+                            <input type="checkbox" checked={formData.es_generico} onChange={e => setFormData({ ...formData, es_generico: e.target.checked })} />
+                            <span>Marcar como <strong>cliente predeterminado</strong> (ventas sin cliente registrado)</span>
+                        </label>
                         <div className="modal-actions">
                             <button type="button" className="secondary-btn" onClick={() => setIsModalOpen(false)}>Cancelar</button>
                             <button type="submit" className="primary-btn"><Users size={18} /> Guardar Cambios</button>
@@ -360,11 +371,11 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                         const catLabel = CATEGORIAS.find(c => c.value === client.categoria)?.label || client.categoria;
                         const tieneMargen = client.margen_ganancia !== null && client.margen_ganancia !== undefined;
                         return (
-                            <div key={client.id} className="client-card glass-card">
+                            <div key={client.id} className={`client-card glass-card ${client.es_generico ? 'card-generico' : ''}`}>
                                 <div className="cc-top">
                                     <div className="cc-avatar">{client.nombre?.charAt(0).toUpperCase()}</div>
                                     <div className="cc-info">
-                                        <h4>{client.nombre}</h4>
+                                        <h4>{client.nombre} {client.es_generico && <span className="badge-generico">Predeterminado</span>}</h4>
                                         <span className="cc-cat">{catLabel}</span>
                                     </div>
                                     <button className="icon-btn delete" onClick={() => handleDelete(client.id)} title="Eliminar"><Trash2 size={16} /></button>
@@ -431,6 +442,10 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                         <textarea value={formData.notas} onChange={e => setFormData({ ...formData, notas: e.target.value })} placeholder="Observaciones..." rows={2}></textarea>
                     </div>
 
+                    <label className="generico-toggle">
+                        <input type="checkbox" checked={formData.es_generico} onChange={e => setFormData({ ...formData, es_generico: e.target.checked })} />
+                        <span>Marcar como <strong>cliente predeterminado</strong> (ventas sin cliente registrado)</span>
+                    </label>
                     <div className="modal-actions">
                         <button type="button" className="secondary-btn" onClick={() => setIsModalOpen(false)}>Cancelar</button>
                         <button type="submit" className="primary-btn"><Users size={18} /> {editingClient ? 'Guardar Cambios' : 'Crear Cliente'}</button>
@@ -572,6 +587,12 @@ function renderStyles() {
       .margen-group input { border-color:rgba(249,115,22,0.3); font-size:1.1rem; font-weight:600; }
       .margen-group input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(249,115,22,0.1); }
       .margen-hint { font-size:0.78rem; color:var(--text-muted); font-style:italic; line-height:1.4; }
+
+      .generico-toggle { display:flex; align-items:center; gap:0.6rem; padding:0.75rem 0.85rem; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.2); border-radius:10px; cursor:pointer; font-size:0.85rem; color:var(--text); }
+      .generico-toggle input { width:16px; height:16px; accent-color:#8b5cf6; cursor:pointer; flex-shrink:0; }
+      .generico-toggle strong { color:#7c3aed; }
+      .badge-generico { display:inline-block; background:rgba(139,92,246,0.1); color:#7c3aed; border:1px solid rgba(139,92,246,0.25); border-radius:12px; padding:0.1rem 0.5rem; font-size:0.68rem; font-weight:700; letter-spacing:0.03em; vertical-align:middle; margin-left:0.4rem; }
+      .card-generico { border-top:3px solid #8b5cf6; }
 
       .cobrar-content { display:flex; flex-direction:column; gap:1rem; }
       .cobrar-subtitle { font-size:0.85rem; color:var(--text-muted); margin:0; }

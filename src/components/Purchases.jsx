@@ -10,6 +10,7 @@ const Purchases = ({ productos, compras, onUpdate }) => {
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [dateFilter, setDateFilter] = useState('all');
 
     // Paginación
     const [currentPage, setCurrentPage] = useState(1);
@@ -94,11 +95,28 @@ const Purchases = ({ productos, compras, onUpdate }) => {
         }
     };
 
-    // Filter and Pagination
-    const filteredCompras = compras.filter(c => {
-        const prodName = productos.find(p => p.id === c.producto_id)?.nombre || '';
-        return prodName.toLowerCase().includes(searchTerm.toLowerCase()) || c.fecha.includes(searchTerm);
-    });
+    // Filter, sort (newest first) and Pagination
+    const filteredCompras = compras
+        .filter(c => {
+            const prodName = productos.find(p => p.id === c.producto_id)?.nombre || '';
+            const matchSearch = prodName.toLowerCase().includes(searchTerm.toLowerCase()) || c.fecha.includes(searchTerm);
+            let matchDate = true;
+            if (dateFilter !== 'all') {
+                const now = new Date();
+                const cDate = new Date(c.fecha + 'T00:00:00');
+                if (dateFilter === 'week') {
+                    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+                    matchDate = cDate >= weekAgo;
+                } else if (dateFilter === 'month') {
+                    matchDate = cDate.getMonth() === now.getMonth() && cDate.getFullYear() === now.getFullYear();
+                }
+            }
+            return matchSearch && matchDate;
+        })
+        .sort((a, b) => {
+            const d = new Date(b.fecha + 'T00:00:00') - new Date(a.fecha + 'T00:00:00');
+            return d !== 0 ? d : (b.creado_en || 0) - (a.creado_en || 0);
+        });
 
     const totalPages = Math.ceil(filteredCompras.length / itemsPerPage);
     const paginatedCompras = filteredCompras.slice(
@@ -128,10 +146,21 @@ const Purchases = ({ productos, compras, onUpdate }) => {
                 </div>
             </div>
 
+            <div className="filter-row">
+                <div className="date-pills">
+                    {[['all','Todo'],['week','Esta semana'],['month','Este mes']].map(([val, label]) => (
+                        <button key={val} className={`filter-pill ${dateFilter === val ? 'active' : ''}`}
+                            onClick={() => { setDateFilter(val); setCurrentPage(1); }}>
+                            {label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             <section className="glass-card table-section">
                 <div className="table-header-row">
                     <h3>Historial de Compras</h3>
-                    <span className="badge">{compras.length} registros</span>
+                    <span className="badge">{filteredCompras.length} registros</span>
                 </div>
                 <div className="table-container">
                     <table>
@@ -152,7 +181,7 @@ const Purchases = ({ productos, compras, onUpdate }) => {
                                         <td>
                                             <div className="date-badge">
                                                 <Calendar size={14} />
-                                                {new Date(c.fecha).toLocaleDateString()}
+                                                {new Date(c.fecha + 'T00:00:00').toLocaleDateString()}
                                             </div>
                                         </td>
                                         <td className="fw-600">
@@ -387,6 +416,12 @@ const Purchases = ({ productos, compras, onUpdate }) => {
                     70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
                     100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
                 }
+
+                .filter-row { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
+                .date-pills { display:flex; gap:0.4rem; }
+                .filter-pill { padding:0.4rem 0.9rem; border-radius:20px; border:1px solid var(--border); background:white; color:var(--text-muted); font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+                .filter-pill.active { background:var(--primary); color:white; border-color:var(--primary); }
+                .filter-pill:hover:not(.active) { border-color:var(--primary); color:var(--primary); }
 
                 .table-section {
                     padding: 0;

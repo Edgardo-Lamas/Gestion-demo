@@ -38,6 +38,8 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
         return { prod, costo, ultimaVenta, lotes };
     }, [nuevaVenta.producto_id, productos, costoPromedio, ventas, compras]);
 
+    const clienteGenerico = clientes.find(c => c.es_generico);
+
     // Precio personalizado del cliente usando su margen de ganancia
     const getPrecioCliente = (cliente_id, producto_id) => {
         if (!cliente_id || !producto_id) return null;
@@ -240,7 +242,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
         let matchDate = true;
         if (dateFilter !== 'all') {
             const now = new Date();
-            const vDate = new Date(v.fecha);
+            const vDate = new Date(v.fecha + 'T00:00:00');
             if (dateFilter === 'week') {
                 const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
                 matchDate = vDate >= weekAgo;
@@ -321,7 +323,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                                         <td>
                                             <div className="date-badge">
                                                 <Calendar size={14} />
-                                                {new Date(v.fecha).toLocaleDateString()}
+                                                {new Date(v.fecha + 'T00:00:00').toLocaleDateString()}
                                             </div>
                                         </td>
                                         <td className="fw-600">{v.producto_nombre}</td>
@@ -396,7 +398,12 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                                 onChange={(e) => handleClienteChange(e.target.value)}
                             >
                                 <option value="">— Venta sin cliente —</option>
-                                {clientes.map(c => (
+                                {clienteGenerico && (
+                                    <option value={clienteGenerico.id}>
+                                        ⭐ {clienteGenerico.nombre} (predeterminado{clienteGenerico.margen_ganancia != null ? ` · +${clienteGenerico.margen_ganancia}%` : ''})
+                                    </option>
+                                )}
+                                {clientes.filter(c => !c.es_generico).map(c => (
                                     <option key={c.id} value={c.id}>
                                         {c.nombre}{c.margen_ganancia != null ? ` (+${c.margen_ganancia}%)` : ''}
                                     </option>

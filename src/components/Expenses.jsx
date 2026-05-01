@@ -72,7 +72,7 @@ const Expenses = ({ gastos, onUpdate }) => {
         let matchDate = true;
         if (dateFilter !== 'all') {
             const now = new Date();
-            const gDate = new Date(g.fecha);
+            const gDate = new Date(g.fecha + 'T00:00:00');
             if (dateFilter === 'week') {
                 const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
                 matchDate = gDate >= weekAgo;
@@ -139,7 +139,7 @@ const Expenses = ({ gastos, onUpdate }) => {
                                         <td>
                                             <div className="date-badge">
                                                 <Calendar size={14} />
-                                                {new Date(g.fecha).toLocaleDateString()}
+                                                {new Date(g.fecha + 'T00:00:00').toLocaleDateString()}
                                             </div>
                                         </td>
                                         <td className="fw-600">{g.concepto}</td>
