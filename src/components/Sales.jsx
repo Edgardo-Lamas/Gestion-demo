@@ -36,15 +36,14 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
         return { prod, costo, ultimaVenta, lotes };
     }, [nuevaVenta.producto_id, productos, costoPromedio, ventas, compras]);
 
-    // Precio personalizado del cliente para un producto dado
+    // Precio personalizado del cliente usando su margen de ganancia
     const getPrecioCliente = (cliente_id, producto_id) => {
         if (!cliente_id || !producto_id) return null;
-        const cp = clienteProductos.find(cp => cp.cliente_id === cliente_id && cp.producto_id === producto_id);
-        if (!cp) return null;
+        const cliente = clientes.find(c => c.id === cliente_id);
+        if (!cliente || cliente.margen_ganancia === null || cliente.margen_ganancia === undefined) return null;
         const costo = costoPromedio[producto_id] || 0;
-        if (cp.precio_fijo > 0) return cp.precio_fijo;
-        if (cp.margen_personalizado && costo > 0) return costo * (1 + cp.margen_personalizado / 100);
-        return null;
+        if (costo <= 0) return null;
+        return costo * (1 + parseFloat(cliente.margen_ganancia) / 100);
     };
 
     // Al seleccionar un producto, autocompletar precio y margen
@@ -354,22 +353,31 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
             >
                 <form onSubmit={handleVenta} className="modal-form">
                     {/* Selector de cliente */}
-                    {clientes.length > 0 && (
-                        <div className="form-group">
-                            <label>Cliente (opcional)</label>
-                            <div className="select-wrapper">
-                                <select
-                                    value={nuevaVenta.cliente_id}
-                                    onChange={(e) => handleClienteChange(e.target.value)}
-                                >
-                                    <option value="">— Venta sin cliente —</option>
-                                    {clientes.map(c => (
-                                        <option key={c.id} value={c.id}>{c.nombre}</option>
-                                    ))}
-                                </select>
-                            </div>
+                    <div className="form-group">
+                        <label>Cliente</label>
+                        <div className="select-wrapper">
+                            <select
+                                value={nuevaVenta.cliente_id}
+                                onChange={(e) => handleClienteChange(e.target.value)}
+                            >
+                                <option value="">— Venta sin cliente —</option>
+                                {clientes.map(c => (
+                                    <option key={c.id} value={c.id}>
+                                        {c.nombre}{c.margen_ganancia != null ? ` (+${c.margen_ganancia}%)` : ''}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-                    )}
+                        {nuevaVenta.cliente_id && (() => {
+                            const cli = clientes.find(c => c.id === nuevaVenta.cliente_id);
+                            if (cli?.margen_ganancia != null) return (
+                                <small className="field-hint" style={{ color: 'var(--secondary)', fontStyle: 'normal', fontWeight: 600 }}>
+                                    ✓ Margen de {cli.nombre}: +{cli.margen_ganancia}% aplicado al precio
+                                </small>
+                            );
+                            return null;
+                        })()}
+                    </div>
 
                     <div className="form-group">
                         <label>Producto</label>

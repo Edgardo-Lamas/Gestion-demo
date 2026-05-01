@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SYSTEM_URL = 'https://Edgardo-Lamas.github.io/Gestion-Sabri';
+const SYSTEM_URL = window.location.origin;
 const ACCESS_PASSWORD = 'cristoFer_1123';
 
 const StudioLogo = ({ size = 22 }) => (

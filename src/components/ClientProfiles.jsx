@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Users, Plus, Search, Trash2, Eye, Zap, Edit3, Phone, MapPin, Tag, Calendar, Package, ArrowLeft, ShoppingBag, TrendingUp, Clock, X, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { Users, Plus, Search, Trash2, Eye, Zap, Edit3, Phone, MapPin, Tag, Calendar, Package, ArrowLeft, ShoppingBag, TrendingUp, Percent } from 'lucide-react';
 import Modal from './ui/Modal';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
@@ -14,7 +14,7 @@ const CATEGORIAS = [
 
 const fmt = (n) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(n || 0);
 
-const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], compras = [], ventas = [], stock_actual = {}, costoPromedio = {}, onUpdate }) => {
+const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = [], stock_actual = {}, costoPromedio = {}, onUpdate }) => {
     const { addToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,32 +24,31 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
     const [cobrarItems, setCobrarItems] = useState([]);
     const [cobrarLoading, setCobrarLoading] = useState(false);
 
-    // Form state
     const [formData, setFormData] = useState({
-        nombre: '', telefono: '', direccion: '', notas: '', categoria: 'mayorista'
+        nombre: '', telefono: '', direccion: '', notas: '', categoria: 'mayorista', margen_ganancia: ''
     });
-    const [formProducts, setFormProducts] = useState([]);
 
-    // Filtered clients
     const filteredClients = clientes.filter(c =>
         c.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.categoria?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Products for a specific client
-    const getClientProducts = (clienteId) =>
-        clienteProductos.filter(cp => cp.cliente_id === clienteId).map(cp => {
-            const prod = productos.find(p => p.id === cp.producto_id);
-            const costo = costoPromedio[cp.producto_id] || 0;
-            const precioFinal = cp.precio_fijo > 0 ? cp.precio_fijo : (costo > 0 && cp.margen_personalizado ? costo * (1 + cp.margen_personalizado / 100) : costo);
-            return { ...cp, producto: prod, costo, precioFinal };
-        });
+    // Genera los productos disponibles con precio personalizado según el margen del cliente
+    const getClientProductsAuto = (cliente) => {
+        if (!cliente || cliente.margen_ganancia === null || cliente.margen_ganancia === undefined) return [];
+        const margen = parseFloat(cliente.margen_ganancia) || 0;
+        return productos
+            .filter(p => (stock_actual[p.id] || 0) > 0)
+            .map(p => {
+                const costo = costoPromedio[p.id] || 0;
+                const precioFinal = costo > 0 ? costo * (1 + margen / 100) : 0;
+                return { producto_id: p.id, producto: p, costo, precioFinal };
+            });
+    };
 
-    // Client sales history
     const getClientSales = (clienteId) =>
         ventas.filter(v => v.cliente_id === clienteId).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-    // Client stats
     const getClientStats = (clienteId) => {
         const sales = getClientSales(clienteId);
         const totalComprado = sales.reduce((sum, v) => sum + v.ingreso_total, 0);
@@ -59,77 +58,47 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
         return { totalComprado, ultimaCompra, totalVentas: sales.length, diasAntiguedad: dias };
     };
 
-    // Open create modal
     const openCreateModal = () => {
         setEditingClient(null);
-        setFormData({ nombre: '', telefono: '', direccion: '', notas: '', categoria: 'mayorista' });
-        setFormProducts([]);
+        setFormData({ nombre: '', telefono: '', direccion: '', notas: '', categoria: 'mayorista', margen_ganancia: '' });
         setIsModalOpen(true);
     };
 
-    // Open edit modal
     const openEditModal = (client) => {
         setEditingClient(client);
         setFormData({
-            nombre: client.nombre, telefono: client.telefono || '',
-            direccion: client.direccion || '', notas: client.notas || '', categoria: client.categoria || 'mayorista'
+            nombre: client.nombre,
+            telefono: client.telefono || '',
+            direccion: client.direccion || '',
+            notas: client.notas || '',
+            categoria: client.categoria || 'mayorista',
+            margen_ganancia: client.margen_ganancia ?? ''
         });
-        const prods = clienteProductos.filter(cp => cp.cliente_id === client.id).map(cp => ({
-            producto_id: cp.producto_id, cantidad_kg: cp.cantidad_kg,
-            margen_personalizado: cp.margen_personalizado || '', precio_fijo: cp.precio_fijo || ''
-        }));
-        setFormProducts(prods);
         setIsModalOpen(true);
     };
 
-    // Add product row to form
-    const addProductRow = () => {
-        setFormProducts([...formProducts, { producto_id: '', cantidad_kg: 1, margen_personalizado: '', precio_fijo: '' }]);
-    };
-
-    // Remove product row
-    const removeProductRow = (idx) => {
-        setFormProducts(formProducts.filter((_, i) => i !== idx));
-    };
-
-    // Update product row
-    const updateProductRow = (idx, field, value) => {
-        const updated = [...formProducts];
-        updated[idx] = { ...updated[idx], [field]: value };
-        setFormProducts(updated);
-    };
-
-    // Save client
     const handleSave = async (e) => {
         e.preventDefault();
         if (!formData.nombre.trim()) { addToast('El nombre es obligatorio', 'error'); return; }
+        if (formData.margen_ganancia === '') { addToast('El margen de ganancia es obligatorio', 'error'); return; }
 
         try {
-            let clientId;
-            if (editingClient) {
-                const { error } = await supabase.from('clientes').update(formData).eq('id', editingClient.id);
-                if (error) throw error;
-                clientId = editingClient.id;
-                // Delete old products and re-insert
-                await supabase.from('cliente_productos').delete().eq('cliente_id', clientId);
-            } else {
-                const { data, error } = await supabase.from('clientes').insert([{ ...formData, fecha_alta: new Date().toISOString().split('T')[0] }]).select();
-                if (error) throw error;
-                clientId = data[0].id;
-            }
+            const clienteData = {
+                nombre: formData.nombre,
+                telefono: formData.telefono,
+                direccion: formData.direccion,
+                notas: formData.notas,
+                categoria: formData.categoria,
+                margen_ganancia: parseFloat(formData.margen_ganancia)
+            };
 
-            // Insert products
-            if (formProducts.length > 0) {
-                const prodsToInsert = formProducts.filter(p => p.producto_id).map(p => ({
-                    cliente_id: clientId, producto_id: p.producto_id,
-                    cantidad_kg: parseFloat(p.cantidad_kg) || 1,
-                    margen_personalizado: p.margen_personalizado ? parseFloat(p.margen_personalizado) : null,
-                    precio_fijo: p.precio_fijo ? parseFloat(p.precio_fijo) : null
-                }));
-                if (prodsToInsert.length > 0) {
-                    const { error } = await supabase.from('cliente_productos').insert(prodsToInsert);
-                    if (error) throw error;
-                }
+            if (editingClient) {
+                const { error } = await supabase.from('clientes').update(clienteData).eq('id', editingClient.id);
+                if (error) throw error;
+            } else {
+                const { error } = await supabase.from('clientes')
+                    .insert([{ ...clienteData, fecha_alta: new Date().toISOString().split('T')[0] }]);
+                if (error) throw error;
             }
 
             addToast(editingClient ? 'Cliente actualizado' : 'Cliente creado exitosamente', 'success');
@@ -140,9 +109,8 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
         }
     };
 
-    // Delete client
     const handleDelete = async (id) => {
-        if (!window.confirm('¿Eliminar este cliente y sus productos precargados?')) return;
+        if (!window.confirm('¿Eliminar este cliente?')) return;
         try {
             const { error } = await supabase.from('clientes').delete().eq('id', id);
             if (error) throw error;
@@ -154,21 +122,26 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
         }
     };
 
-    // Open cobrar preview
     const openCobrar = (client) => {
-        const items = getClientProducts(client.id).map(cp => ({
-            ...cp, cantidad_cobrar: cp.cantidad_kg, incluir: true
+        if (client.margen_ganancia === null || client.margen_ganancia === undefined) {
+            addToast('Este cliente no tiene margen configurado', 'error');
+            return;
+        }
+        const items = getClientProductsAuto(client).map(cp => ({
+            ...cp, cantidad_cobrar: 1, incluir: true
         }));
-        if (items.length === 0) { addToast('Este cliente no tiene productos precargados', 'error'); return; }
+        if (items.length === 0) {
+            addToast('No hay productos con stock disponible', 'error');
+            return;
+        }
         setCobrarItems(items);
         setSelectedClient(client);
         setIsCobrarModalOpen(true);
     };
 
-    // Execute cobro
     const ejecutarCobro = async () => {
         setCobrarLoading(true);
-        const itemsToCharge = cobrarItems.filter(i => i.incluir && i.cantidad_cobrar > 0);
+        const itemsToCharge = cobrarItems.filter(i => i.incluir && parseFloat(i.cantidad_cobrar) > 0);
         if (itemsToCharge.length === 0) { addToast('No hay productos seleccionados', 'error'); setCobrarLoading(false); return; }
 
         try {
@@ -192,7 +165,6 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                 const ingreso_total = cantidad * item.precioFinal;
                 const ganancia = ingreso_total - costo_total;
 
-                // Update lots
                 if (lotes_actualizados.length > 0) {
                     const comprasUpsert = lotes_actualizados.map(la => ({
                         id: la.id, producto_id: la.producto_id, cantidad_kg: la.cantidad_kg,
@@ -203,7 +175,6 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                     if (error) throw error;
                 }
 
-                // Register sale
                 const registro = {
                     producto_id: item.producto_id,
                     producto_nombre: item.producto?.nombre,
@@ -230,7 +201,7 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
 
     // =============== DETAIL VIEW ===============
     if (selectedClient && !isCobrarModalOpen) {
-        const clientProds = getClientProducts(selectedClient.id);
+        const clientProds = getClientProductsAuto(selectedClient);
         const clientSales = getClientSales(selectedClient.id);
         const stats = getClientStats(selectedClient.id);
         const catLabel = CATEGORIAS.find(c => c.value === selectedClient.categoria)?.label || selectedClient.categoria;
@@ -253,55 +224,47 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                     </div>
                 </div>
 
-                {/* Stats */}
                 <div className="stats-row">
                     <div className="stat-card"><ShoppingBag size={20} /><div><span className="stat-value">{stats.totalVentas}</span><span className="stat-label">Compras</span></div></div>
                     <div className="stat-card"><TrendingUp size={20} /><div><span className="stat-value">{fmt(stats.totalComprado)}</span><span className="stat-label">Total Facturado</span></div></div>
-                    <div className="stat-card"><Clock size={20} /><div><span className="stat-value">{stats.diasAntiguedad} días</span><span className="stat-label">Antigüedad</span></div></div>
+                    <div className="stat-card"><Percent size={20} /><div><span className="stat-value">+{selectedClient.margen_ganancia ?? 0}%</span><span className="stat-label">Margen aplicado</span></div></div>
                     <div className="stat-card"><Calendar size={20} /><div><span className="stat-value">{stats.ultimaCompra ? new Date(stats.ultimaCompra).toLocaleDateString('es-AR') : '—'}</span><span className="stat-label">Última Compra</span></div></div>
                 </div>
 
-                {/* Client info */}
-                <div className="detail-contact glass-card">
-                    <h4>Datos de Contacto</h4>
-                    <div className="contact-grid">
-                        {selectedClient.telefono && <div className="contact-item"><Phone size={16} /> {selectedClient.telefono}</div>}
-                        {selectedClient.direccion && <div className="contact-item"><MapPin size={16} /> {selectedClient.direccion}</div>}
-                        {selectedClient.notas && <div className="contact-item note"><Tag size={16} /> {selectedClient.notas}</div>}
+                {(selectedClient.telefono || selectedClient.direccion || selectedClient.notas) && (
+                    <div className="detail-contact glass-card">
+                        <h4>Datos de Contacto</h4>
+                        <div className="contact-grid">
+                            {selectedClient.telefono && <div className="contact-item"><Phone size={16} /> {selectedClient.telefono}</div>}
+                            {selectedClient.direccion && <div className="contact-item"><MapPin size={16} /> {selectedClient.direccion}</div>}
+                            {selectedClient.notas && <div className="contact-item note"><Tag size={16} /> {selectedClient.notas}</div>}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Preloaded products */}
                 <div className="glass-card">
                     <div className="section-header">
-                        <h4><Package size={18} /> Productos Precargados</h4>
-                        <span className="badge">{clientProds.length} productos</span>
+                        <h4><Package size={18} /> Precios para este cliente</h4>
+                        <span className="badge">+{selectedClient.margen_ganancia ?? 0}% sobre costo</span>
                     </div>
                     {clientProds.length > 0 ? (
                         <div className="products-list">
                             {clientProds.map(cp => (
-                                <div key={cp.id} className="product-row">
+                                <div key={cp.producto_id} className="product-row">
                                     <div className="pr-info">
-                                        <span className="pr-name">{cp.producto?.nombre || 'Producto eliminado'}</span>
-                                        <span className="pr-detail">{cp.cantidad_kg} kg · Costo: {fmt(cp.costo)}/kg</span>
+                                        <span className="pr-name">{cp.producto?.nombre}</span>
+                                        <span className="pr-detail">Costo promedio: {fmt(cp.costo)}/kg · Stock: {(stock_actual[cp.producto_id] || 0).toFixed(2)} kg</span>
                                     </div>
                                     <div className="pr-price">
                                         <span className="pr-price-val">{fmt(cp.precioFinal)}/kg</span>
-                                        {cp.margen_personalizado && <span className="pr-margin">+{cp.margen_personalizado}%</span>}
-                                        {cp.precio_fijo > 0 && <span className="pr-fixed">Precio fijo</span>}
+                                        <span className="pr-margin">+{selectedClient.margen_ganancia}%</span>
                                     </div>
-                                    <span className="pr-total">{fmt(cp.precioFinal * cp.cantidad_kg)}</span>
                                 </div>
                             ))}
-                            <div className="products-total">
-                                <span>Total estimado por cobro:</span>
-                                <strong>{fmt(clientProds.reduce((s, cp) => s + cp.precioFinal * cp.cantidad_kg, 0))}</strong>
-                            </div>
                         </div>
-                    ) : <p className="empty-msg">No hay productos precargados. Editá el perfil para agregarlos.</p>}
+                    ) : <p className="empty-msg">No hay productos con stock disponible en este momento.</p>}
                 </div>
 
-                {/* Sales history */}
                 <div className="glass-card">
                     <div className="section-header">
                         <h4><ShoppingBag size={18} /> Historial de Compras</h4>
@@ -328,6 +291,45 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                     ) : <p className="empty-msg">Este cliente aún no tiene compras registradas.</p>}
                 </div>
 
+                {/* Modal editar desde la vista de detalle */}
+                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Editar Cliente">
+                    <form onSubmit={handleSave} className="modal-form">
+                        <div className="form-group">
+                            <label>Nombre del Cliente / Negocio *</label>
+                            <input type="text" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: Carnicería Don Pedro" required />
+                        </div>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Teléfono</label>
+                                <input type="text" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value })} placeholder="11-1234-5678" />
+                            </div>
+                            <div className="form-group">
+                                <label>Categoría</label>
+                                <select value={formData.categoria} onChange={e => setFormData({ ...formData, categoria: e.target.value })}>
+                                    {CATEGORIAS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="form-group margen-group">
+                            <label><Percent size={14} style={{ display: 'inline', marginRight: 4 }} />Margen de Ganancia % *</label>
+                            <input type="number" step="0.1" min="0" placeholder="Ej: 30" value={formData.margen_ganancia} onChange={e => setFormData({ ...formData, margen_ganancia: e.target.value })} required />
+                            <small className="margen-hint">Este porcentaje se aplica automáticamente al costo de cada producto al registrar una venta con este cliente.</small>
+                        </div>
+                        <div className="form-group">
+                            <label>Dirección</label>
+                            <input type="text" value={formData.direccion} onChange={e => setFormData({ ...formData, direccion: e.target.value })} placeholder="Dirección de entrega" />
+                        </div>
+                        <div className="form-group">
+                            <label>Notas</label>
+                            <textarea value={formData.notas} onChange={e => setFormData({ ...formData, notas: e.target.value })} placeholder="Observaciones..." rows={2}></textarea>
+                        </div>
+                        <div className="modal-actions">
+                            <button type="button" className="secondary-btn" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                            <button type="submit" className="primary-btn"><Users size={18} /> Guardar Cambios</button>
+                        </div>
+                    </form>
+                </Modal>
+
                 {renderStyles()}
             </div>
         );
@@ -348,15 +350,15 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                 <div className="empty-state-box glass-card">
                     <Users size={48} />
                     <h3>No hay clientes cargados</h3>
-                    <p>Creá el primer perfil de cliente para empezar a usar el cobro automático.</p>
+                    <p>Creá el primer perfil de cliente para gestionar precios personalizados.</p>
                     <button className="primary-btn" onClick={openCreateModal}><Plus size={18} /> Crear Cliente</button>
                 </div>
             ) : (
                 <div className="clients-grid">
                     {filteredClients.map(client => {
-                        const prods = getClientProducts(client.id);
                         const stats = getClientStats(client.id);
                         const catLabel = CATEGORIAS.find(c => c.value === client.categoria)?.label || client.categoria;
+                        const tieneMargen = client.margen_ganancia !== null && client.margen_ganancia !== undefined;
                         return (
                             <div key={client.id} className="client-card glass-card">
                                 <div className="cc-top">
@@ -368,18 +370,15 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                                     <button className="icon-btn delete" onClick={() => handleDelete(client.id)} title="Eliminar"><Trash2 size={16} /></button>
                                 </div>
                                 <div className="cc-stats">
-                                    <div className="cc-stat"><span>{prods.length}</span> productos</div>
-                                    <div className="cc-stat"><span>{stats.totalVentas}</span> compras</div>
+                                    <div className="cc-stat"><span>{stats.totalVentas}</span> ventas</div>
                                     <div className="cc-stat"><span>{stats.diasAntiguedad}d</span> antigüedad</div>
+                                    {tieneMargen && (
+                                        <div className="cc-stat margen-stat"><span>+{client.margen_ganancia}%</span> margen</div>
+                                    )}
                                 </div>
-                                {prods.length > 0 && (
-                                    <div className="cc-total">
-                                        Cobro estimado: <strong>{fmt(prods.reduce((s, cp) => s + cp.precioFinal * cp.cantidad_kg, 0))}</strong>
-                                    </div>
-                                )}
                                 <div className="cc-actions">
                                     <button className="outline-btn" onClick={() => setSelectedClient(client)}><Eye size={16} /> Ver Perfil</button>
-                                    <button className="cobrar-btn" onClick={() => openCobrar(client)} disabled={prods.length === 0}><Zap size={16} /> Cobrar</button>
+                                    <button className="cobrar-btn" onClick={() => openCobrar(client)} disabled={!tieneMargen}><Zap size={16} /> Cobrar</button>
                                 </div>
                             </div>
                         );
@@ -387,7 +386,7 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                 </div>
             )}
 
-            {/* CREATE/EDIT MODAL */}
+            {/* MODAL NUEVO / EDITAR CLIENTE */}
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}>
                 <form onSubmit={handleSave} className="modal-form">
                     <div className="form-group">
@@ -395,7 +394,10 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                         <input type="text" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: Carnicería Don Pedro" required />
                     </div>
                     <div className="form-row">
-                        <div className="form-group"><label>Teléfono</label><input type="text" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value })} placeholder="11-1234-5678" /></div>
+                        <div className="form-group">
+                            <label>Teléfono</label>
+                            <input type="text" value={formData.telefono} onChange={e => setFormData({ ...formData, telefono: e.target.value })} placeholder="11-1234-5678" />
+                        </div>
                         <div className="form-group">
                             <label>Categoría</label>
                             <select value={formData.categoria} onChange={e => setFormData({ ...formData, categoria: e.target.value })}>
@@ -403,33 +405,30 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
                             </select>
                         </div>
                     </div>
-                    <div className="form-group"><label>Dirección</label><input type="text" value={formData.direccion} onChange={e => setFormData({ ...formData, direccion: e.target.value })} placeholder="Dirección de entrega" /></div>
-                    <div className="form-group"><label>Notas</label><textarea value={formData.notas} onChange={e => setFormData({ ...formData, notas: e.target.value })} placeholder="Observaciones..." rows={2}></textarea></div>
 
-                    {/* Products section */}
-                    <div className="form-section">
-                        <div className="form-section-header">
-                            <h4><Package size={16} /> Productos Frecuentes</h4>
-                            <button type="button" className="add-product-btn" onClick={addProductRow}><Plus size={14} /> Agregar</button>
-                        </div>
-                        {formProducts.map((fp, idx) => {
-                            const costo = costoPromedio[fp.producto_id] || 0;
-                            const precioCalc = fp.precio_fijo ? parseFloat(fp.precio_fijo) : (costo > 0 && fp.margen_personalizado ? costo * (1 + parseFloat(fp.margen_personalizado) / 100) : costo);
-                            return (
-                                <div key={idx} className="fp-row">
-                                    <select value={fp.producto_id} onChange={e => updateProductRow(idx, 'producto_id', e.target.value)}>
-                                        <option value="">Seleccionar...</option>
-                                        {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-                                    </select>
-                                    <input type="number" step="0.1" min="0.1" placeholder="Kg" value={fp.cantidad_kg} onChange={e => updateProductRow(idx, 'cantidad_kg', e.target.value)} className="fp-qty" />
-                                    <input type="number" step="0.1" placeholder="Margen %" value={fp.margen_personalizado} onChange={e => updateProductRow(idx, 'margen_personalizado', e.target.value)} className="fp-margin" />
-                                    <input type="number" step="0.01" placeholder="Precio fijo $" value={fp.precio_fijo} onChange={e => updateProductRow(idx, 'precio_fijo', e.target.value)} className="fp-price" />
-                                    {precioCalc > 0 && <span className="fp-calc">= {fmt(precioCalc)}/kg</span>}
-                                    <button type="button" className="fp-del" onClick={() => removeProductRow(idx)}><X size={14} /></button>
-                                </div>
-                            );
-                        })}
-                        {formProducts.length === 0 && <p className="empty-products-hint">Sin productos. Agregá productos para habilitar el cobro rápido.</p>}
+                    <div className="form-group margen-group">
+                        <label><Percent size={14} style={{ display: 'inline', marginRight: 4 }} />Margen de Ganancia % *</label>
+                        <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            placeholder="Ej: 30"
+                            value={formData.margen_ganancia}
+                            onChange={e => setFormData({ ...formData, margen_ganancia: e.target.value })}
+                            required
+                        />
+                        <small className="margen-hint">
+                            Este porcentaje se aplica automáticamente al costo de cada producto al registrar una venta con este cliente.
+                        </small>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Dirección</label>
+                        <input type="text" value={formData.direccion} onChange={e => setFormData({ ...formData, direccion: e.target.value })} placeholder="Dirección de entrega" />
+                    </div>
+                    <div className="form-group">
+                        <label>Notas</label>
+                        <textarea value={formData.notas} onChange={e => setFormData({ ...formData, notas: e.target.value })} placeholder="Observaciones..." rows={2}></textarea>
                     </div>
 
                     <div className="modal-actions">
@@ -471,7 +470,7 @@ const ClientProfiles = ({ clientes = [], clienteProductos = [], productos = [], 
             </Modal>
 
             {renderStyles()}
-        </div >
+        </div>
     );
 };
 
@@ -491,7 +490,6 @@ function renderStyles() {
       .secondary-btn { background:#f1f5f9; color:var(--text); border:1px solid var(--border); padding:0.75rem 1.5rem; border-radius:8px; font-weight:600; cursor:pointer; transition:all 0.2s; }
       .secondary-btn:hover { background:#e2e8f0; }
 
-      /* Clients Grid */
       .clients-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem; }
       .client-card { display:flex; flex-direction:column; gap:1rem; transition:transform 0.2s, box-shadow 0.2s; }
       .client-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
@@ -500,11 +498,10 @@ function renderStyles() {
       .cc-info { flex:1; }
       .cc-info h4 { margin:0; font-size:1.05rem; color:var(--text); }
       .cc-cat { font-size:0.75rem; color:var(--text-muted); }
-      .cc-stats { display:flex; gap:1rem; padding:0.75rem; background:#f8fafc; border-radius:8px; }
+      .cc-stats { display:flex; gap:1rem; padding:0.75rem; background:#f8fafc; border-radius:8px; flex-wrap:wrap; }
       .cc-stat { font-size:0.8rem; color:var(--text-muted); }
       .cc-stat span { font-weight:700; color:var(--text); margin-right:3px; }
-      .cc-total { font-size:0.85rem; color:var(--text-muted); padding:0.5rem 0.75rem; background:rgba(249,115,22,0.05); border-radius:8px; border-left:3px solid var(--primary); }
-      .cc-total strong { color:var(--primary); }
+      .cc-stat.margen-stat span { color:var(--secondary); }
       .cc-actions { display:flex; gap:0.75rem; }
       .outline-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:8px; border:1px solid var(--border); background:white; color:var(--text); font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s; }
       .outline-btn:hover { border-color:var(--primary); color:var(--primary); }
@@ -514,11 +511,9 @@ function renderStyles() {
       .icon-btn.delete { background:transparent; border:none; color:var(--text-muted); cursor:pointer; padding:0.4rem; border-radius:6px; transition:all 0.2s; }
       .icon-btn.delete:hover { background:rgba(239,68,68,0.1); color:var(--error); }
 
-      /* Empty state */
       .empty-state-box { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4rem 2rem; text-align:center; color:var(--text-muted); gap:1rem; }
       .empty-state-box h3 { color:var(--text); }
 
-      /* Detail View */
       .back-btn { display:flex; align-items:center; gap:0.5rem; background:none; border:none; color:var(--text-muted); font-weight:600; cursor:pointer; margin-bottom:1.5rem; padding:0.5rem 0; transition:color 0.2s; }
       .back-btn:hover { color:var(--primary); }
       .detail-header { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
@@ -532,14 +527,12 @@ function renderStyles() {
       .cobrar-btn-lg { display:flex; align-items:center; gap:0.4rem; padding:0.6rem 1.25rem; border-radius:8px; border:none; background:linear-gradient(135deg,#10b981,#059669); color:white; font-weight:600; font-size:0.9rem; cursor:pointer; transition:all 0.2s; box-shadow:0 2px 8px rgba(16,185,129,0.3); }
       .cobrar-btn-lg:hover { transform:translateY(-1px); }
 
-      /* Stats */
       .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.5rem; }
       .stat-card { display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; background:var(--glass); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.3); border-radius:var(--radius); box-shadow:var(--shadow); color:var(--primary); }
       .stat-card div { display:flex; flex-direction:column; }
       .stat-value { font-weight:700; font-size:1rem; color:var(--text); }
       .stat-label { font-size:0.75rem; color:var(--text-muted); }
 
-      /* Detail sections */
       .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
       .section-header h4 { display:flex; align-items:center; gap:0.5rem; margin:0; color:var(--text); }
       .badge { background:#f1f5f9; color:var(--text-muted); padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem; font-weight:600; }
@@ -550,7 +543,6 @@ function renderStyles() {
       .contact-item.note { color:var(--text); font-style:italic; }
       .glass-card { margin-bottom:1.5rem; }
 
-      /* Products list */
       .products-list { display:flex; flex-direction:column; gap:0.5rem; }
       .product-row { display:flex; align-items:center; gap:1rem; padding:0.75rem; background:#f8fafc; border-radius:8px; border:1px solid #f1f5f9; }
       .pr-info { flex:1; display:flex; flex-direction:column; }
@@ -559,47 +551,28 @@ function renderStyles() {
       .pr-price { display:flex; flex-direction:column; align-items:flex-end; }
       .pr-price-val { font-weight:700; color:var(--text); font-size:0.9rem; }
       .pr-margin { font-size:0.7rem; color:var(--secondary); font-weight:600; }
-      .pr-fixed { font-size:0.7rem; color:var(--primary); font-weight:600; }
-      .pr-total { font-weight:700; color:var(--primary); font-size:0.95rem; min-width:80px; text-align:right; }
-      .products-total { display:flex; justify-content:space-between; padding:0.75rem; border-top:2px solid var(--primary); margin-top:0.5rem; font-size:0.95rem; }
-      .products-total strong { color:var(--primary); font-size:1.1rem; }
       .empty-msg { color:var(--text-muted); font-size:0.9rem; font-style:italic; padding:1rem 0; }
 
-      /* Table styles */
       .fw-600 { font-weight:600; }
       .fw-700 { font-weight:700; }
       .profit-badge { padding:0.25rem 0.5rem; border-radius:6px; font-weight:600; font-size:0.85rem; }
       .profit-badge.positive { background:rgba(16,185,129,0.1); color:var(--secondary); }
       .profit-badge.negative { background:rgba(239,68,68,0.1); color:var(--error); }
 
-      /* Form styles */
       .modal-form { display:flex; flex-direction:column; gap:1.25rem; }
       .form-group { display:flex; flex-direction:column; gap:0.4rem; }
-      .form-group label { font-size:0.85rem; font-weight:500; color:var(--text); }
+      .form-group label { font-size:0.85rem; font-weight:500; color:var(--text); display:flex; align-items:center; gap:0.3rem; }
       .form-group input, .form-group select, .form-group textarea { width:100%; padding:0.65rem 0.75rem; border:1px solid var(--border); border-radius:8px; font-size:0.9rem; background:#f8fafc; transition:border-color 0.2s; box-sizing:border-box; }
       .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--primary); background:white; }
       .form-group textarea { resize:vertical; font-family:inherit; }
       .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
       .modal-actions { display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; }
 
-      /* Products form section */
-      .form-section { border:1px solid var(--border); border-radius:10px; padding:1rem; background:#fafbfc; }
-      .form-section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; }
-      .form-section-header h4 { margin:0; font-size:0.95rem; display:flex; align-items:center; gap:0.4rem; color:var(--text); }
-      .add-product-btn { display:flex; align-items:center; gap:0.3rem; background:rgba(249,115,22,0.1); color:var(--primary); border:none; padding:0.4rem 0.75rem; border-radius:6px; font-weight:600; font-size:0.8rem; cursor:pointer; transition:all 0.2s; }
-      .add-product-btn:hover { background:rgba(249,115,22,0.2); }
-      .fp-row { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; flex-wrap:wrap; }
-      .fp-row select { flex:2; min-width:120px; padding:0.5rem; border:1px solid var(--border); border-radius:6px; font-size:0.85rem; background:white; }
-      .fp-qty { width:60px!important; min-width:60px; }
-      .fp-margin { width:80px!important; min-width:80px; }
-      .fp-price { width:90px!important; min-width:90px; }
-      .fp-row input { padding:0.5rem!important; font-size:0.85rem!important; border-radius:6px!important; }
-      .fp-calc { font-size:0.75rem; font-weight:600; color:var(--secondary); white-space:nowrap; }
-      .fp-del { background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0.25rem; border-radius:4px; display:flex; }
-      .fp-del:hover { color:var(--error); background:rgba(239,68,68,0.1); }
-      .empty-products-hint { color:var(--text-muted); font-size:0.8rem; font-style:italic; text-align:center; padding:0.5rem; }
+      .margen-group { background:rgba(249,115,22,0.04); padding:0.85rem; border-radius:10px; border:1px solid rgba(249,115,22,0.2); }
+      .margen-group input { border-color:rgba(249,115,22,0.3); font-size:1.1rem; font-weight:600; }
+      .margen-group input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(249,115,22,0.1); }
+      .margen-hint { font-size:0.78rem; color:var(--text-muted); font-style:italic; line-height:1.4; }
 
-      /* Cobrar modal */
       .cobrar-content { display:flex; flex-direction:column; gap:1rem; }
       .cobrar-subtitle { font-size:0.85rem; color:var(--text-muted); margin:0; }
       .cobrar-item { display:flex; align-items:center; gap:0.75rem; padding:0.75rem; background:#f8fafc; border-radius:8px; border:1px solid #f1f5f9; transition:opacity 0.2s; }
@@ -622,8 +595,6 @@ function renderStyles() {
         .stats-row { grid-template-columns:1fr 1fr; }
         .detail-header { flex-direction:column; align-items:flex-start; }
         .detail-actions { width:100%; }
-        .fp-row { flex-direction:column; align-items:stretch; }
-        .fp-row select, .fp-qty, .fp-margin, .fp-price { width:100%!important; min-width:unset; }
         .product-row { flex-direction:column; align-items:flex-start; }
         .cobrar-item { flex-wrap:wrap; }
       }
