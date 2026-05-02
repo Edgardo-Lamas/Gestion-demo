@@ -27,6 +27,8 @@ import B2BStoreFront from './components/B2BStoreFront';
 
 import ClientProfiles from './components/ClientProfiles';
 import Entrega from './components/Entrega';
+import ReporteSabri from './components/ReporteSabri';
+import SabriPanel from './components/SabriPanel';
 
 function AppContent({ currentView, setCurrentView }) {
   const { logout } = useAuth();
@@ -824,13 +826,15 @@ function AppAuthWrapper() {
     const view = params.get('view');
     if (view === 'storefront') return 'storefront';
     if (view === 'entrega') return 'entrega';
+    if (view === 'reporte') return 'reporte';
+    if (view === 'sabri') return 'sabri';
     return 'app';
   });
 
-  // Página de entrega: pública, no requiere login ni esperar auth
-  if (currentView === 'entrega') {
-    return <Entrega />;
-  }
+  // Páginas públicas: no requieren login ni esperar auth
+  if (currentView === 'entrega') return <Entrega />;
+  if (currentView === 'reporte') return <ReporteSabri />;
+  if (currentView === 'sabri') return <SabriPanel />;
 
   if (loading) {
     return (
