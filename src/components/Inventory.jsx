@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { Trash2 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
 
@@ -37,6 +37,25 @@ const Inventory = ({ productos, stock_actual, compras, onUpdate }) => {
         addToast('Visibilidad del catálogo actualizada', 'info');
         if (onUpdate) onUpdate();
     };
+
+    const handleDeleteProducto = async (id, nombre, stock) => {
+        if (stock > 0) {
+            addToast(`No se puede eliminar "${nombre}" — tiene ${stock.toFixed(2)} kg en stock. Vendé o distribuí el stock primero.`, 'error');
+            return;
+        }
+        if (!window.confirm(`¿Eliminar el producto "${nombre}"? Esta acción no se puede deshacer.`)) return;
+
+        const { error } = await supabase.from('productos').delete().eq('id', id);
+
+        if (error) {
+            addToast(`No se pudo eliminar "${nombre}". Puede tener historial de compras o ventas asociado. Ocultalo del catálogo como alternativa.`, 'error');
+            return;
+        }
+
+        addToast(`Producto "${nombre}" eliminado`, 'info');
+        if (onUpdate) onUpdate();
+    };
+
     return (
         <div className="inventory-view">
             <section className="glass-card">
@@ -50,6 +69,7 @@ const Inventory = ({ productos, stock_actual, compras, onUpdate }) => {
                                 <th>Precio Catálogo B2B ($/kg)</th>
                                 <th>Visible Catálogo</th>
                                 <th>Próximo Lote a Vender (FIFO)</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -119,6 +139,27 @@ const Inventory = ({ productos, stock_actual, compras, onUpdate }) => {
                                             {proximo_lote
                                                 ? `${proximo_lote.cantidad_disponible.toFixed(2)} kg @ $${proximo_lote.costo_unitario.toFixed(2)} (${proximo_lote.fecha})`
                                                 : 'Sin stock'}
+                                        </td>
+                                        <td>
+                                            <button
+                                                onClick={() => handleDeleteProducto(p.id, p.nombre, stock)}
+                                                title={stock > 0 ? 'No se puede eliminar con stock disponible' : 'Eliminar producto'}
+                                                style={{
+                                                    background: 'transparent',
+                                                    border: 'none',
+                                                    cursor: stock > 0 ? 'not-allowed' : 'pointer',
+                                                    color: stock > 0 ? 'var(--border)' : 'var(--text-muted)',
+                                                    padding: '0.35rem',
+                                                    borderRadius: '6px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    transition: 'all 0.2s',
+                                                }}
+                                                onMouseEnter={e => { if (stock === 0) e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.background = stock === 0 ? 'rgba(239,68,68,0.1)' : 'transparent'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.color = stock > 0 ? 'var(--border)' : 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         </td>
                                     </tr>
                                 );
