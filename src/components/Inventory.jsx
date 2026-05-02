@@ -38,21 +38,53 @@ const Inventory = ({ productos, stock_actual, compras, onUpdate }) => {
         if (onUpdate) onUpdate();
     };
 
-    const handleDeleteProducto = async (id, nombre, stock) => {
-        if (stock > 0) {
-            addToast(`No se puede eliminar "${nombre}" — tiene ${stock.toFixed(2)} kg en stock. Vendé o distribuí el stock primero.`, 'error');
+    const handleDeleteProducto = async (id, nombre) => {
+        // Contar registros relacionados para informar al usuario
+        const [{ count: cCompras }, { count: cVentas }, { count: cDist }] = await Promise.all([
+            supabase.from('compras').select('id', { count: 'exact', head: true }).eq('producto_id', id),
+            supabase.from('ventas').select('id', { count: 'exact', head: true }).eq('producto_id', id),
+            supabase.from('distribuciones').select('id', { count: 'exact', head: true }).eq('producto_id', id),
+        ]);
+
+        const detalles = [
+            cCompras > 0 && `${cCompras} compra(s)`,
+            cVentas > 0 && `${cVentas} venta(s)`,
+            cDist > 0 && `${cDist} distribución(es)`,
+        ].filter(Boolean).join(', ');
+
+        const mensaje = detalles
+            ? `¿Eliminar "${nombre}" y todos sus registros relacionados (${detalles})?\n\nEsta acción no se puede deshacer.`
+            : `¿Eliminar el producto "${nombre}"? Esta acción no se puede deshacer.`;
+
+        if (!window.confirm(mensaje)) return;
+
+        // Borrado en cascada manual
+        const errores = [];
+        if (cDist > 0) {
+            const { error } = await supabase.from('distribuciones').delete().eq('producto_id', id);
+            if (error) errores.push('distribuciones');
+        }
+        if (cVentas > 0) {
+            const { error } = await supabase.from('ventas').delete().eq('producto_id', id);
+            if (error) errores.push('ventas');
+        }
+        if (cCompras > 0) {
+            const { error } = await supabase.from('compras').delete().eq('producto_id', id);
+            if (error) errores.push('compras');
+        }
+
+        if (errores.length > 0) {
+            addToast(`Error eliminando registros de: ${errores.join(', ')}`, 'error');
             return;
         }
-        if (!window.confirm(`¿Eliminar el producto "${nombre}"? Esta acción no se puede deshacer.`)) return;
 
         const { error } = await supabase.from('productos').delete().eq('id', id);
-
         if (error) {
-            addToast(`No se pudo eliminar "${nombre}". Puede tener historial de compras o ventas asociado. Ocultalo del catálogo como alternativa.`, 'error');
+            addToast(`Error eliminando el producto: ${error.message}`, 'error');
             return;
         }
 
-        addToast(`Producto "${nombre}" eliminado`, 'info');
+        addToast(`Producto "${nombre}" y todos sus registros eliminados`, 'info');
         if (onUpdate) onUpdate();
     };
 
@@ -142,21 +174,21 @@ const Inventory = ({ productos, stock_actual, compras, onUpdate }) => {
                                         </td>
                                         <td>
                                             <button
-                                                onClick={() => handleDeleteProducto(p.id, p.nombre, stock)}
-                                                title={stock > 0 ? 'No se puede eliminar con stock disponible' : 'Eliminar producto'}
+                                                onClick={() => handleDeleteProducto(p.id, p.nombre)}
+                                                title="Eliminar producto"
                                                 style={{
                                                     background: 'transparent',
                                                     border: 'none',
-                                                    cursor: stock > 0 ? 'not-allowed' : 'pointer',
-                                                    color: stock > 0 ? 'var(--border)' : 'var(--text-muted)',
+                                                    cursor: 'pointer',
+                                                    color: 'var(--text-muted)',
                                                     padding: '0.35rem',
                                                     borderRadius: '6px',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     transition: 'all 0.2s',
                                                 }}
-                                                onMouseEnter={e => { if (stock === 0) e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.background = stock === 0 ? 'rgba(239,68,68,0.1)' : 'transparent'; }}
-                                                onMouseLeave={e => { e.currentTarget.style.color = stock > 0 ? 'var(--border)' : 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+                                                onMouseEnter={e => { e.currentTarget.style.color = 'var(--error)'; e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
                                             >
                                                 <Trash2 size={16} />
                                             </button>
