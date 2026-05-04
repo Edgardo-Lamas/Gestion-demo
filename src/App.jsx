@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   HelpCircle,
-  Users
+  Users,
+  Boxes
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -26,6 +27,7 @@ import MeatDistribution from './components/MeatDistribution';
 import B2BStoreFront from './components/B2BStoreFront';
 
 import ClientProfiles from './components/ClientProfiles';
+import Products from './components/Products';
 import Entrega from './components/Entrega';
 import ReporteSabri from './components/ReporteSabri';
 import SabriPanel from './components/SabriPanel';
@@ -138,6 +140,7 @@ function AppContent({ currentView, setCurrentView }) {
       case 'inventory': return <Inventory productos={productos} stock_actual={stock_actual} compras={compras} onUpdate={fetchData} />;
       case 'distribution': return <MeatDistribution distribuciones={distribuciones} productos={productos} costoPromedio={costoPromedio} ventas={ventas} compras={compras} onUpdate={fetchData} />;
       case 'clients': return <ClientProfiles clientes={clientes} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
+      case 'products': return <Products productos={productos} compras={compras} ventas={ventas} distribuciones={distribuciones} stock_actual={stock_actual} onUpdate={fetchData} />;
       default: return <Dashboard />;
     }
   };
@@ -150,6 +153,7 @@ function AppContent({ currentView, setCurrentView }) {
     { id: 'inventory', label: 'Stock', icon: Package },
     { id: 'distribution', label: 'Distribución', icon: Scale },
     { id: 'clients', label: 'Clientes', icon: Users },
+    { id: 'products', label: 'Productos', icon: Boxes },
   ];
 
   return (

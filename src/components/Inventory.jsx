@@ -11,7 +11,7 @@ const Inventory = ({ productos, stock_actual, compras, onUpdate }) => {
         const finalVal = isNaN(val) ? 0 : val;
 
         const { error } = await supabase.from('productos')
-            .update({ precio_b2b: finalVal })
+            .update({ precio_catalogo: finalVal })
             .eq('id', id);
 
         if (error) {
@@ -136,9 +136,9 @@ const Inventory = ({ productos, stock_actual, compras, onUpdate }) => {
                                                     type="number"
                                                     min="0"
                                                     step="0.01"
-                                                    defaultValue={p.precio_b2b || ''}
+                                                    defaultValue={p.precio_catalogo || ''}
                                                     onBlur={(e) => {
-                                                        if (parseFloat(e.target.value) !== (p.precio_b2b || 0)) {
+                                                        if (parseFloat(e.target.value) !== (p.precio_catalogo || 0)) {
                                                             handlePriceChange(p.id, e.target.value);
                                                         }
                                                     }}

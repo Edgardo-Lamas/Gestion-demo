@@ -31,23 +31,33 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
         if (!nuevaVenta.producto_id) return null;
         const prod = productos.find(p => p.id === nuevaVenta.producto_id);
         const costo = costoPromedio[nuevaVenta.producto_id] || 0;
+        const precioCatalogo = parseFloat(prod?.precio_catalogo) || 0;
+        const precioBase = precioCatalogo > 0 ? precioCatalogo : costo;
+        const usandoCatalogo = precioCatalogo > 0;
         const ultimaVenta = ventas.find(v => v.producto_id === nuevaVenta.producto_id);
         const lotes = compras
             .filter(c => c.producto_id === nuevaVenta.producto_id && c.cantidad_disponible > 0)
             .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-        return { prod, costo, ultimaVenta, lotes };
+        return { prod, costo, precioCatalogo, precioBase, usandoCatalogo, ultimaVenta, lotes };
     }, [nuevaVenta.producto_id, productos, costoPromedio, ventas, compras]);
 
     const clienteGenerico = clientes.find(c => c.es_generico);
 
-    // Precio personalizado del cliente usando su margen de ganancia
+    // Precio base del producto: precio_catalogo si está definido, sino costoPromedio
+    const getPrecioBase = (producto_id) => {
+        const prod = productos.find(p => p.id === producto_id);
+        const catalogo = parseFloat(prod?.precio_catalogo) || 0;
+        return catalogo > 0 ? catalogo : (costoPromedio[producto_id] || 0);
+    };
+
+    // Precio final para un cliente: base × (1 + margen_cliente / 100)
     const getPrecioCliente = (cliente_id, producto_id) => {
         if (!cliente_id || !producto_id) return null;
         const cliente = clientes.find(c => c.id === cliente_id);
         if (!cliente || cliente.margen_ganancia === null || cliente.margen_ganancia === undefined) return null;
-        const costo = costoPromedio[producto_id] || 0;
-        if (costo <= 0) return null;
-        return costo * (1 + parseFloat(cliente.margen_ganancia) / 100);
+        const base = getPrecioBase(producto_id);
+        if (base <= 0) return null;
+        return base * (1 + parseFloat(cliente.margen_ganancia) / 100);
     };
 
     // Al seleccionar un producto, autocompletar precio y margen
@@ -57,69 +67,63 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
             return;
         }
 
-        const prod = productos.find(p => p.id === producto_id);
-        const costo = costoPromedio[producto_id] || 0;
+        const base = getPrecioBase(producto_id);
         const ultimaVenta = ventas.find(v => v.producto_id === producto_id);
 
-        // Si hay cliente seleccionado con precio personalizado, usarlo primero
+        // Si hay cliente seleccionado con margen, aplicarlo sobre el precio catálogo
         const precioCliente = getPrecioCliente(nuevaVenta.cliente_id, producto_id);
         if (precioCliente) {
-            const margen = costo > 0 ? (((precioCliente - costo) / costo) * 100).toFixed(1) : '';
+            const cliente = clientes.find(c => c.id === nuevaVenta.cliente_id);
+            const margen = cliente?.margen_ganancia ?? '';
             setNuevaVenta({ ...nuevaVenta, producto_id, precio_venta_unitario: precioCliente.toFixed(2), margen_ganancia: margen });
             return;
         }
 
-        let precio = '';
-        let margen = prod?.margen_ganancia || '';
-
-        if (margen && costo > 0) {
-            precio = (costo * (1 + parseFloat(margen) / 100)).toFixed(2);
-        } else if (ultimaVenta) {
+        // Sin cliente: usar precio_catalogo directo, o la última venta como fallback
+        let precio = base > 0 ? base.toFixed(2) : '';
+        if (!precio && ultimaVenta) {
             precio = ultimaVenta.precio_venta_unitario.toString();
-            if (costo > 0) {
-                margen = (((ultimaVenta.precio_venta_unitario - costo) / costo) * 100).toFixed(1);
-            }
         }
 
-        setNuevaVenta({ ...nuevaVenta, producto_id, precio_venta_unitario: precio, margen_ganancia: margen });
+        setNuevaVenta({ ...nuevaVenta, producto_id, precio_venta_unitario: precio, margen_ganancia: '' });
     };
 
-    // Al seleccionar cliente, si ya hay producto elegido recalcular precio
+    // Al seleccionar cliente, recalcular precio sobre precio_catalogo
     const handleClienteChange = (cliente_id) => {
         const precioCliente = getPrecioCliente(cliente_id, nuevaVenta.producto_id);
-        const costo = costoPromedio[nuevaVenta.producto_id] || 0;
         if (precioCliente) {
-            const margen = costo > 0 ? (((precioCliente - costo) / costo) * 100).toFixed(1) : '';
+            const cliente = clientes.find(c => c.id === cliente_id);
+            const margen = cliente?.margen_ganancia ?? '';
             setNuevaVenta({ ...nuevaVenta, cliente_id, precio_venta_unitario: precioCliente.toFixed(2), margen_ganancia: margen });
         } else {
             setNuevaVenta({ ...nuevaVenta, cliente_id });
         }
     };
 
-    // Al cambiar el margen, recalcular el precio
+    // Al cambiar el margen manualmente, recalcular precio desde precio_catalogo
     const handleMargenChange = (margenStr) => {
-        const costo = costoPromedio[nuevaVenta.producto_id] || 0;
+        const base = getPrecioBase(nuevaVenta.producto_id);
         let precio = nuevaVenta.precio_venta_unitario;
 
-        if (margenStr && costo > 0) {
+        if (margenStr && base > 0) {
             const margen = parseFloat(margenStr);
             if (!isNaN(margen)) {
-                precio = (costo * (1 + margen / 100)).toFixed(2);
+                precio = (base * (1 + margen / 100)).toFixed(2);
             }
         }
 
         setNuevaVenta({ ...nuevaVenta, margen_ganancia: margenStr, precio_venta_unitario: precio });
     };
 
-    // Al cambiar el precio manualmente, recalcular el margen
+    // Al cambiar el precio manualmente, recalcular el margen respecto al precio_catalogo
     const handlePrecioChange = (precioStr) => {
-        const costo = costoPromedio[nuevaVenta.producto_id] || 0;
+        const base = getPrecioBase(nuevaVenta.producto_id);
         let margen = nuevaVenta.margen_ganancia;
 
-        if (precioStr && costo > 0) {
+        if (precioStr && base > 0) {
             const precio = parseFloat(precioStr);
             if (!isNaN(precio)) {
-                margen = (((precio - costo) / costo) * 100).toFixed(1);
+                margen = (((precio - base) / base) * 100).toFixed(1);
             }
         }
 
@@ -441,17 +445,30 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                     </div>
 
                     {/* Panel de contexto de costos */}
-                    {productoSeleccionado && productoSeleccionado.costo > 0 && (
+                    {productoSeleccionado && productoSeleccionado.precioBase > 0 && (
                         <div className="cost-context-panel">
                             <div className="context-header">
                                 <Info size={16} />
                                 <span>Info de precio — {productoSeleccionado.prod?.nombre}</span>
                             </div>
                             <div className="context-metrics">
-                                <div className="context-metric">
-                                    <span className="metric-label">Costo promedio stock</span>
-                                    <span className="metric-value">${productoSeleccionado.costo.toFixed(2)}/kg</span>
-                                </div>
+                                {productoSeleccionado.usandoCatalogo ? (
+                                    <div className="context-metric highlight">
+                                        <span className="metric-label">✓ Precio catálogo</span>
+                                        <span className="metric-value accent">${productoSeleccionado.precioCatalogo.toFixed(2)}/kg</span>
+                                    </div>
+                                ) : (
+                                    <div className="context-metric">
+                                        <span className="metric-label">Costo promedio stock (sin precio catálogo)</span>
+                                        <span className="metric-value">${productoSeleccionado.costo.toFixed(2)}/kg</span>
+                                    </div>
+                                )}
+                                {productoSeleccionado.usandoCatalogo && productoSeleccionado.costo > 0 && (
+                                    <div className="context-metric">
+                                        <span className="metric-label">Costo real stock</span>
+                                        <span className="metric-value">${productoSeleccionado.costo.toFixed(2)}/kg</span>
+                                    </div>
+                                )}
                                 {productoSeleccionado.ultimaVenta && (
                                     <div className="context-metric">
                                         <span className="metric-label">Último precio venta</span>
@@ -460,7 +477,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                                 )}
                                 {nuevaVenta.margen_ganancia && (
                                     <div className="context-metric highlight">
-                                        <span className="metric-label">Margen ganancia</span>
+                                        <span className="metric-label">Margen cliente</span>
                                         <span className="metric-value accent">{parseFloat(nuevaVenta.margen_ganancia).toFixed(1)}%</span>
                                     </div>
                                 )}

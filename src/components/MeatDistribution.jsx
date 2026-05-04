@@ -51,7 +51,7 @@ function MeatDistribution({ distribuciones, productos = [], costoPromedio = {}, 
     if (!form.producto) return '';
     const prod = productos.find(p => p.nombre === form.producto);
     if (!prod) return '';
-    const costo = costoBase[prod.id] || costoPromedio[prod.id] || 0;
+    const costo = costoBase[prod.id] || costoPromedio[prod.id] || prod.costo_referencia || 0;
     return costo > 0 ? costo.toFixed(2) : '';
   }, [form.producto, costoBase, costoPromedio, productos]);
 
@@ -69,7 +69,7 @@ function MeatDistribution({ distribuciones, productos = [], costoPromedio = {}, 
       let sale_price = '';
 
       if (prod) {
-        const costo = costoBase[prod.id] || costoPromedio[prod.id] || 0;
+        const costo = costoBase[prod.id] || costoPromedio[prod.id] || prod.costo_referencia || 0;
         if (costo > 0) base_price = costo.toFixed(2);
 
         const ventasProducto = ventas.filter(v => v.producto_id === prod.id);

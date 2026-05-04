@@ -12,8 +12,8 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
   const catalogProducts = useMemo(() => {
     return productos.map(p => {
       // El precio B2B sugerido es el configurado manualmente, o el costo promedio (si no configuró nada)
-      const precio_sugerido = p.precio_b2b > 0
-        ? p.precio_b2b
+      const precio_sugerido = p.precio_catalogo > 0
+        ? p.precio_catalogo
         : (costoPromedio[p.id] || 0);
 
       return {
