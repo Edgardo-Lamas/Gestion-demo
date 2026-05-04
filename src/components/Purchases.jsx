@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ShoppingCart, Trash2, Package, Calendar, Search } from 'lucide-react';
+import { ShoppingCart, Trash2, Package, Calendar, Search } from 'lucide-react';
 import Modal from './ui/Modal';
 import { useToast } from '../context/ToastContext';
 
@@ -7,7 +7,6 @@ import { supabase } from '../lib/supabase';
 
 const Purchases = ({ productos, compras, onUpdate }) => {
     const { addToast } = useToast();
-    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [dateFilter, setDateFilter] = useState('all');
@@ -16,38 +15,12 @@ const Purchases = ({ productos, compras, onUpdate }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    const [nuevoProductoNombre, setNuevoProductoNombre] = useState('');
     const [compra, setCompra] = useState({
         producto_id: '',
         cantidad_kg: '',
         costo_unitario: '',
         fecha: new Date().toISOString().split('T')[0]
     });
-
-    const addProducto = async (e) => {
-        e.preventDefault();
-        if (!nuevoProductoNombre.trim()) {
-            addToast('El nombre del producto no puede estar vacío', 'error');
-            return;
-        }
-
-        const nuevoProducto = {
-            nombre: nuevoProductoNombre.trim(),
-            oculto_catalogo: false
-        };
-
-        const { error } = await supabase.from('productos').insert([nuevoProducto]);
-
-        if (error) {
-            addToast('Error guardando producto: ' + error.message, 'error');
-            return;
-        }
-
-        setNuevoProductoNombre('');
-        setIsProductModalOpen(false);
-        addToast('Producto agregado correctamente', 'success');
-        if (onUpdate) onUpdate(); // Refrescar estado global
-    };
 
     const addCompra = async (e) => {
         e.preventDefault();
@@ -137,9 +110,6 @@ const Purchases = ({ productos, compras, onUpdate }) => {
                     />
                 </div>
                 <div className="actions">
-                    <button className="secondary-btn" onClick={() => setIsProductModalOpen(true)}>
-                        <Package size={20} /> Nuevo Producto
-                    </button>
                     <button className="primary-btn pulse" onClick={() => setIsPurchaseModalOpen(true)}>
                         <ShoppingCart size={20} /> Nueva Compra
                     </button>
@@ -222,37 +192,6 @@ const Purchases = ({ productos, compras, onUpdate }) => {
                     </div>
                 )}
             </section>
-
-            {/* Modal de Nuevo Producto */}
-            <Modal
-                isOpen={isProductModalOpen}
-                onClose={() => setIsProductModalOpen(false)}
-                title="Añadir Nuevo Producto"
-            >
-                <form onSubmit={addProducto} className="modal-form">
-                    <div className="form-group">
-                        <label>Nombre del Producto</label>
-                        <div className="input-wrapper">
-                            <Package size={18} className="input-icon" />
-                            <input
-                                type="text"
-                                placeholder="Ej: Queso Tybo"
-                                value={nuevoProductoNombre}
-                                onChange={(e) => setNuevoProductoNombre(e.target.value)}
-                                autoFocus
-                            />
-                        </div>
-                    </div>
-                    <div className="modal-actions">
-                        <button type="button" className="secondary-btn" onClick={() => setIsProductModalOpen(false)}>
-                            Cancelar
-                        </button>
-                        <button type="submit" className="primary-btn">
-                            <Plus size={18} /> Guardar Producto
-                        </button>
-                    </div>
-                </form>
-            </Modal>
 
             {/* Modal de Nueva Compra */}
             <Modal
