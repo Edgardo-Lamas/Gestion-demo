@@ -73,7 +73,7 @@ export default function SabriPanel() {
   const [saving, setSaving] = useState(false);
 
   // Formulario nueva venta
-  const [form, setForm] = useState({ producto_id: '', cantidad_kg: '', precio_venta: '' });
+  const [form, setForm] = useState({ producto_id: '', cantidad_kg: '', precio_venta: '', flete: '' });
   const [guardado, setGuardado] = useState(false);
 
   // Filtro semana
@@ -122,40 +122,42 @@ export default function SabriPanel() {
     return r;
   }, [compras]);
 
-  // Último porcentaje usado por producto
-  const ultimoPorcentaje = useMemo(() => {
+  // Último flete usado por producto (para pre-rellenar el campo)
+  const ultimoFlete = useMemo(() => {
     const r = {};
     distribuciones.forEach(d => {
-      if (d.producto_id && d.partner_share_percentage != null && !r[d.producto_id]) {
-        r[d.producto_id] = d.partner_share_percentage;
+      if (d.producto_id && d.shipping_cost != null && !r[d.producto_id]) {
+        r[d.producto_id] = d.shipping_cost;
       }
     });
     return r;
   }, [distribuciones]);
 
-  const productoSeleccionado = productos.find(p => p.id === form.producto_id);
   const basePrecio = form.producto_id ? (costoBase[form.producto_id] || 0) : 0;
-  const porcentaje = form.producto_id
-    ? (ultimoPorcentaje[form.producto_id] ?? 50)
-    : 50;
+  // Cristhoper cobra a Sabri su costo + 5% de markup
+  const basePrecioConMarkup = basePrecio > 0 ? basePrecio * 1.05 : 0;
 
   const preview = useMemo(() => {
     const kg = parseFloat(form.cantidad_kg);
     const venta = parseFloat(form.precio_venta);
-    if (!form.producto_id || isNaN(kg) || kg <= 0 || isNaN(venta) || venta <= 0 || basePrecio <= 0) return null;
-    if (venta <= basePrecio) return null;
+    const fleteVal = parseFloat(form.flete) || 0;
+    const baseConMarkup = basePrecio > 0 ? basePrecio * 1.05 : 0;
+    if (!form.producto_id || isNaN(kg) || kg <= 0 || isNaN(venta) || venta <= 0 || baseConMarkup <= 0) return null;
+    if (venta <= baseConMarkup + fleteVal) return null;
     const dist = calculateMeatSaleDistribution({
-      base_price: basePrecio,
-      shipping_cost: 0,
+      base_price: baseConMarkup,
+      shipping_cost: fleteVal,
       sale_price: venta,
-      partner_share_percentage: porcentaje,
+      partner_share_percentage: 50,
     });
     return {
       ganancia: dist.partner_profit * kg,
       entrega: dist.supplier_total_return * kg,
       totalVenta: venta * kg,
+      costoSabri: dist.total_cost,
+      margenKg: dist.total_profit,
     };
-  }, [form, basePrecio, porcentaje]);
+  }, [form, basePrecio]);
 
   const handleGuardar = async () => {
     if (!preview || saving) return;
@@ -163,21 +165,23 @@ export default function SabriPanel() {
 
     const kg = parseFloat(form.cantidad_kg);
     const venta = parseFloat(form.precio_venta);
+    const fleteVal = parseFloat(form.flete) || 0;
+    const baseConMarkup = basePrecio * 1.05;
     const dist = calculateMeatSaleDistribution({
-      base_price: basePrecio,
-      shipping_cost: 0,
+      base_price: baseConMarkup,
+      shipping_cost: fleteVal,
       sale_price: venta,
-      partner_share_percentage: porcentaje,
+      partner_share_percentage: 50,
     });
 
     const nueva = {
       fecha: today(),
       producto_id: form.producto_id,
       cantidad_kg: kg,
-      precio_base: basePrecio,
-      shipping_cost: 0,
+      precio_base: baseConMarkup,
+      shipping_cost: fleteVal,
       precio_venta: venta,
-      partner_share_percentage: porcentaje,
+      partner_share_percentage: 50,
       total_cost: dist.total_cost,
       total_profit: dist.total_profit,
       partner_profit: dist.partner_profit,
@@ -199,7 +203,7 @@ export default function SabriPanel() {
 
     // Agregar al estado local
     setDistribuciones(prev => [{ ...nueva, id: data?.[0]?.id }, ...prev]);
-    setForm({ producto_id: '', cantidad_kg: '', precio_venta: '' });
+    setForm({ producto_id: '', cantidad_kg: '', precio_venta: '', flete: '' });
     setGuardado(true);
     setTimeout(() => setGuardado(false), 3000);
   };
@@ -586,13 +590,22 @@ export default function SabriPanel() {
                   <select
                     className="sp-select"
                     value={form.producto_id}
-                    onChange={e => setForm({ ...form, producto_id: e.target.value, cantidad_kg: '', precio_venta: '' })}
+                    onChange={e => {
+                      const pid = e.target.value;
+                      const flete = ultimoFlete[pid] != null ? String(ultimoFlete[pid]) : '';
+                      setForm({ producto_id: pid, cantidad_kg: '', precio_venta: '', flete });
+                    }}
                   >
                     <option value="">Seleccioná un producto...</option>
                     {productos.map(p => (
                       <option key={p.id} value={p.id}>{p.nombre}</option>
                     ))}
                   </select>
+                  {form.producto_id && basePrecio > 0 && (
+                    <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0.4rem 0 0', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                      Costo Cristhoper: {fmt(basePrecio)}/kg → con 5%: {fmt(basePrecioConMarkup)}/kg
+                    </p>
+                  )}
                   {form.producto_id && basePrecio === 0 && (
                     <p className="sp-no-base">
                       ⚠ Este producto no tiene precio base cargado todavía. Pedile a Cristhoper que registre una compra primero.
@@ -602,15 +615,15 @@ export default function SabriPanel() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   <div className="sp-field" style={{ marginBottom: 0 }}>
-                    <label className="sp-label">Kilos vendidos</label>
+                    <label className="sp-label">Flete ($/kg)</label>
                     <input
                       className="sp-input"
                       type="number"
                       min="0"
-                      step="0.1"
-                      placeholder="5.00"
-                      value={form.cantidad_kg}
-                      onChange={e => setForm({ ...form, cantidad_kg: e.target.value })}
+                      step="10"
+                      placeholder="300"
+                      value={form.flete}
+                      onChange={e => setForm({ ...form, flete: e.target.value })}
                     />
                   </div>
                   <div className="sp-field" style={{ marginBottom: 0 }}>
@@ -625,6 +638,19 @@ export default function SabriPanel() {
                       onChange={e => setForm({ ...form, precio_venta: e.target.value })}
                     />
                   </div>
+                </div>
+
+                <div className="sp-field" style={{ marginBottom: 0, marginTop: '0.75rem' }}>
+                  <label className="sp-label">Kilos vendidos</label>
+                  <input
+                    className="sp-input"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="5.00"
+                    value={form.cantidad_kg}
+                    onChange={e => setForm({ ...form, cantidad_kg: e.target.value })}
+                  />
                 </div>
               </div>
 
@@ -641,6 +667,11 @@ export default function SabriPanel() {
                   <div className="sp-preview-field" style={{ gridColumn: '1 / -1' }}>
                     <div className="sp-preview-label">Le entrego a Cristhoper</div>
                     <div className="sp-preview-value purple">{fmt(preview.entrega)}</div>
+                  </div>
+                  <div className="sp-preview-field" style={{ gridColumn: '1 / -1', borderTop: '1px solid rgba(16,185,129,0.15)', paddingTop: '0.5rem' }}>
+                    <div className="sp-preview-label" style={{ fontSize: '0.63rem', color: '#475569' }}>
+                      Costo Sabri {fmt(preview.costoSabri)}/kg · Margen {fmt(preview.margenKg)}/kg → 50% c/u
+                    </div>
                   </div>
                 </div>
               )}
