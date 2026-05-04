@@ -11,8 +11,11 @@ export const AuthProvider = ({ children }) => {
         let subscription = null;
 
         try {
-            // Obtenemos la sesión actual inicial
-            supabase.auth.getSession()
+            const timeout = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('timeout')), 5000)
+            );
+
+            Promise.race([supabase.auth.getSession(), timeout])
                 .then(({ data: { session } }) => {
                     setUser(session?.user ?? null);
                     setLoading(false);

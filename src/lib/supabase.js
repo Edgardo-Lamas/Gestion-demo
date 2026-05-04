@@ -7,5 +7,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('⚠️ Variables de entorno de Supabase no encontradas. La autenticación no funcionará correctamente.')
 }
 
-// Inicializar el cliente
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '')
+export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+    },
+})
