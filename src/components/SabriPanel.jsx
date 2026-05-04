@@ -134,8 +134,6 @@ export default function SabriPanel() {
   }, [distribuciones]);
 
   const basePrecio = form.producto_id ? (costoBase[form.producto_id] || 0) : 0;
-  // Cristhoper cobra a Sabri su costo + 5% de markup
-  const basePrecioConMarkup = basePrecio > 0 ? basePrecio * 1.05 : 0;
 
   const preview = useMemo(() => {
     const kg = parseFloat(form.cantidad_kg);
@@ -601,11 +599,6 @@ export default function SabriPanel() {
                       <option key={p.id} value={p.id}>{p.nombre}</option>
                     ))}
                   </select>
-                  {form.producto_id && basePrecio > 0 && (
-                    <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0.4rem 0 0', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
-                      Costo Cristhoper: {fmt(basePrecio)}/kg → con 5%: {fmt(basePrecioConMarkup)}/kg
-                    </p>
-                  )}
                   {form.producto_id && basePrecio === 0 && (
                     <p className="sp-no-base">
                       ⚠ Este producto no tiene precio base cargado todavía. Pedile a Cristhoper que registre una compra primero.
@@ -667,11 +660,6 @@ export default function SabriPanel() {
                   <div className="sp-preview-field" style={{ gridColumn: '1 / -1' }}>
                     <div className="sp-preview-label">Le entrego a Cristhoper</div>
                     <div className="sp-preview-value purple">{fmt(preview.entrega)}</div>
-                  </div>
-                  <div className="sp-preview-field" style={{ gridColumn: '1 / -1', borderTop: '1px solid rgba(16,185,129,0.15)', paddingTop: '0.5rem' }}>
-                    <div className="sp-preview-label" style={{ fontSize: '0.63rem', color: '#475569' }}>
-                      Costo Sabri {fmt(preview.costoSabri)}/kg · Margen {fmt(preview.margenKg)}/kg → 50% c/u
-                    </div>
                   </div>
                 </div>
               )}
