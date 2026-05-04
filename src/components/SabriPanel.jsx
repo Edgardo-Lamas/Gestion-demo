@@ -73,7 +73,7 @@ export default function SabriPanel() {
   const [saving, setSaving] = useState(false);
 
   // Formulario nueva venta
-  const [form, setForm] = useState({ producto_id: '', cantidad_kg: '', precio_venta: '', flete: '' });
+  const [form, setForm] = useState({ producto_id: '', cantidad_kg: '', precio_venta: '' });
   const [guardado, setGuardado] = useState(false);
 
   // Filtro semana
@@ -95,7 +95,7 @@ export default function SabriPanel() {
     const load = async () => {
       setLoading(true);
       const [{ data: pData }, { data: cData }, { data: dData }] = await Promise.all([
-        supabase.from('productos').select('id, nombre').order('nombre'),
+        supabase.from('productos').select('id, nombre, flete_sabri').order('nombre'),
         supabase.from('compras').select('id, producto_id, costo_unitario, cantidad_kg'),
         supabase.from('distribuciones').select('*').order('fecha', { ascending: false }),
       ]);
@@ -122,23 +122,13 @@ export default function SabriPanel() {
     return r;
   }, [compras]);
 
-  // Último flete usado por producto (para pre-rellenar el campo)
-  const ultimoFlete = useMemo(() => {
-    const r = {};
-    distribuciones.forEach(d => {
-      if (d.producto_id && d.shipping_cost != null && !r[d.producto_id]) {
-        r[d.producto_id] = d.shipping_cost;
-      }
-    });
-    return r;
-  }, [distribuciones]);
-
   const basePrecio = form.producto_id ? (costoBase[form.producto_id] || 0) : 0;
 
   const preview = useMemo(() => {
     const kg = parseFloat(form.cantidad_kg);
     const venta = parseFloat(form.precio_venta);
-    const fleteVal = parseFloat(form.flete) || 0;
+    const prod = productos.find(p => p.id === form.producto_id);
+    const fleteVal = prod?.flete_sabri || 0;
     const baseConMarkup = basePrecio > 0 ? basePrecio * 1.05 : 0;
     if (!form.producto_id || isNaN(kg) || kg <= 0 || isNaN(venta) || venta <= 0 || baseConMarkup <= 0) return null;
     if (venta <= baseConMarkup + fleteVal) return null;
@@ -152,10 +142,8 @@ export default function SabriPanel() {
       ganancia: dist.partner_profit * kg,
       entrega: dist.supplier_total_return * kg,
       totalVenta: venta * kg,
-      costoSabri: dist.total_cost,
-      margenKg: dist.total_profit,
     };
-  }, [form, basePrecio]);
+  }, [form, basePrecio, productos]);
 
   const handleGuardar = async () => {
     if (!preview || saving) return;
@@ -163,7 +151,8 @@ export default function SabriPanel() {
 
     const kg = parseFloat(form.cantidad_kg);
     const venta = parseFloat(form.precio_venta);
-    const fleteVal = parseFloat(form.flete) || 0;
+    const prod = productos.find(p => p.id === form.producto_id);
+    const fleteVal = prod?.flete_sabri || 0;
     const baseConMarkup = basePrecio * 1.05;
     const dist = calculateMeatSaleDistribution({
       base_price: baseConMarkup,
@@ -201,7 +190,7 @@ export default function SabriPanel() {
 
     // Agregar al estado local
     setDistribuciones(prev => [{ ...nueva, id: data?.[0]?.id }, ...prev]);
-    setForm({ producto_id: '', cantidad_kg: '', precio_venta: '', flete: '' });
+    setForm({ producto_id: '', cantidad_kg: '', precio_venta: '' });
     setGuardado(true);
     setTimeout(() => setGuardado(false), 3000);
   };
@@ -588,11 +577,7 @@ export default function SabriPanel() {
                   <select
                     className="sp-select"
                     value={form.producto_id}
-                    onChange={e => {
-                      const pid = e.target.value;
-                      const flete = ultimoFlete[pid] != null ? String(ultimoFlete[pid]) : '';
-                      setForm({ producto_id: pid, cantidad_kg: '', precio_venta: '', flete });
-                    }}
+                    onChange={e => setForm({ producto_id: e.target.value, cantidad_kg: '', precio_venta: '' })}
                   >
                     <option value="">Seleccioná un producto...</option>
                     {productos.map(p => (
@@ -608,15 +593,15 @@ export default function SabriPanel() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                   <div className="sp-field" style={{ marginBottom: 0 }}>
-                    <label className="sp-label">Flete ($/kg)</label>
+                    <label className="sp-label">Kilos vendidos</label>
                     <input
                       className="sp-input"
                       type="number"
                       min="0"
-                      step="10"
-                      placeholder="300"
-                      value={form.flete}
-                      onChange={e => setForm({ ...form, flete: e.target.value })}
+                      step="0.1"
+                      placeholder="5.00"
+                      value={form.cantidad_kg}
+                      onChange={e => setForm({ ...form, cantidad_kg: e.target.value })}
                     />
                   </div>
                   <div className="sp-field" style={{ marginBottom: 0 }}>
@@ -631,19 +616,6 @@ export default function SabriPanel() {
                       onChange={e => setForm({ ...form, precio_venta: e.target.value })}
                     />
                   </div>
-                </div>
-
-                <div className="sp-field" style={{ marginBottom: 0, marginTop: '0.75rem' }}>
-                  <label className="sp-label">Kilos vendidos</label>
-                  <input
-                    className="sp-input"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    placeholder="5.00"
-                    value={form.cantidad_kg}
-                    onChange={e => setForm({ ...form, cantidad_kg: e.target.value })}
-                  />
                 </div>
               </div>
 

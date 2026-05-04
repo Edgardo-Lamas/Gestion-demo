@@ -11,6 +11,7 @@ const Products = ({ productos, stock_actual, onUpdate }) => {
     const [nuevoNombre, setNuevoNombre] = useState('');
     const [nuevoCosto, setNuevoCosto] = useState('');
     const [nuevoPrecioB2B, setNuevoPrecioB2B] = useState('');
+    const [nuevoFlete, setNuevoFlete] = useState('');
     const [creando, setCreando] = useState(false);
 
     // Modal editar
@@ -20,12 +21,14 @@ const Products = ({ productos, stock_actual, onUpdate }) => {
     const [editNombre, setEditNombre] = useState('');
     const [editCosto, setEditCosto] = useState('');
     const [editPrecioB2B, setEditPrecioB2B] = useState('');
+    const [editFlete, setEditFlete] = useState('');
 
     const abrirEditar = (p) => {
         setEditProducto(p);
         setEditNombre(p.nombre);
         setEditCosto(p.costo_referencia != null ? String(p.costo_referencia) : '');
         setEditPrecioB2B(p.precio_catalogo != null ? String(p.precio_catalogo) : '');
+        setEditFlete(p.flete_sabri != null ? String(p.flete_sabri) : '');
         setShowEditar(true);
     };
 
@@ -38,6 +41,7 @@ const Products = ({ productos, stock_actual, onUpdate }) => {
             nombre: editNombre.trim(),
             costo_referencia: parseFloat(editCosto) || 0,
             precio_catalogo: parseFloat(editPrecioB2B) || 0,
+            flete_sabri: parseFloat(editFlete) || 0,
         }).eq('id', editProducto.id);
 
         setEditando(false);
@@ -60,6 +64,7 @@ const Products = ({ productos, stock_actual, onUpdate }) => {
             nombre: nuevoNombre.trim(),
             costo_referencia: parseFloat(nuevoCosto) || 0,
             precio_catalogo: parseFloat(nuevoPrecioB2B) || 0,
+            flete_sabri: parseFloat(nuevoFlete) || 0,
             oculto_catalogo: false,
         }]);
 
@@ -73,6 +78,7 @@ const Products = ({ productos, stock_actual, onUpdate }) => {
         setNuevoNombre('');
         setNuevoCosto('');
         setNuevoPrecioB2B('');
+        setNuevoFlete('');
         setShowCrear(false);
         if (onUpdate) onUpdate();
     };
@@ -315,6 +321,21 @@ const Products = ({ productos, stock_actual, onUpdate }) => {
                                         />
                                     </div>
                                 </div>
+                                <div>
+                                    <label style={labelStyle}>Flete Sabri ($/kg)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="10"
+                                        value={nuevoFlete}
+                                        onChange={e => setNuevoFlete(e.target.value)}
+                                        placeholder="0"
+                                        style={fieldStyle}
+                                    />
+                                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '0.4rem 0 0' }}>
+                                        Costo de logística que se descuenta antes de dividir el margen
+                                    </p>
+                                </div>
                             </div>
                             <div className="products-modal-actions">
                                 <button type="button" className="products-secondary-btn" onClick={() => setShowCrear(false)}>
@@ -380,6 +401,21 @@ const Products = ({ productos, stock_actual, onUpdate }) => {
                                             style={fieldStyle}
                                         />
                                     </div>
+                                </div>
+                                <div>
+                                    <label style={labelStyle}>Flete Sabri ($/kg)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="10"
+                                        value={editFlete}
+                                        onChange={e => setEditFlete(e.target.value)}
+                                        placeholder="0"
+                                        style={fieldStyle}
+                                    />
+                                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '0.4rem 0 0' }}>
+                                        Costo de logística que se descuenta antes de dividir el margen
+                                    </p>
                                 </div>
                             </div>
                             <div className="products-modal-actions">
