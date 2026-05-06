@@ -233,15 +233,46 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
     };
 
     const deleteVenta = async (venta) => {
-        if (window.confirm('¿Eliminar esta venta? Nota: El stock NO se restaurará automáticamente en este MVP.')) {
-            const { error } = await supabase.from('ventas').delete().eq('id', venta.id);
+        const prod = productos.find(p => p.id === venta.producto_id);
+        const msg = `¿Anular la venta de ${venta.cantidad_vendida} kg de ${prod?.nombre || 'este producto'}?\n\nSe restaurará el stock automáticamente.`;
+        if (!window.confirm(msg)) return;
+
+        // Restaurar stock en orden FIFO inverso: devolver kilos a los lotes
+        // más antiguos primero (los mismos que se consumieron al vender)
+        const lotesProducto = compras
+            .filter(c => c.producto_id === venta.producto_id)
+            .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+        let aRestaurar = parseFloat(venta.cantidad_vendida);
+        const actualizaciones = [];
+
+        for (const lote of lotesProducto) {
+            if (aRestaurar <= 0) break;
+            const consumido = lote.cantidad_kg - lote.cantidad_disponible;
+            if (consumido <= 0) continue;
+            const devolver = Math.min(aRestaurar, consumido);
+            actualizaciones.push({ id: lote.id, cantidad_disponible: lote.cantidad_disponible + devolver });
+            aRestaurar -= devolver;
+        }
+
+        for (const upd of actualizaciones) {
+            const { error } = await supabase.from('compras')
+                .update({ cantidad_disponible: upd.cantidad_disponible })
+                .eq('id', upd.id);
             if (error) {
-                addToast('Error eliminando venta', 'error');
-            } else {
-                addToast('Venta eliminada del historial', 'info');
-                if (onUpdate) onUpdate();
+                addToast('Error restaurando stock: ' + error.message, 'error');
+                return;
             }
         }
+
+        const { error } = await supabase.from('ventas').delete().eq('id', venta.id);
+        if (error) {
+            addToast('Error eliminando venta', 'error');
+            return;
+        }
+
+        addToast(`Venta anulada y stock restaurado (${venta.cantidad_vendida} kg devueltos)`, 'success');
+        if (onUpdate) onUpdate();
     };
 
     // Filter and Pagination Logic
