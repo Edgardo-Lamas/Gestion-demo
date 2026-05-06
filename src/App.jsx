@@ -15,7 +15,8 @@ import {
   X,
   HelpCircle,
   Users,
-  Boxes
+  Boxes,
+  ClipboardList,
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -30,6 +31,7 @@ import ClientProfiles from './components/ClientProfiles';
 import Products from './components/Products';
 import Entrega from './components/Entrega';
 import ReporteSabri from './components/ReporteSabri';
+import ReporteSabriAdmin from './components/ReporteSabriAdmin';
 import SabriPanel from './components/SabriPanel';
 
 function AppContent({ currentView, setCurrentView }) {
@@ -141,6 +143,7 @@ function AppContent({ currentView, setCurrentView }) {
       case 'distribution': return <MeatDistribution distribuciones={distribuciones} productos={productos} costoPromedio={costoPromedio} ventas={ventas} compras={compras} onUpdate={fetchData} />;
       case 'clients': return <ClientProfiles clientes={clientes} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
       case 'products': return <Products productos={productos} compras={compras} ventas={ventas} distribuciones={distribuciones} stock_actual={stock_actual} onUpdate={fetchData} />;
+      case 'sabri-reporte': return <ReporteSabriAdmin distribuciones={distribuciones} productos={productos} />;
       default: return <Dashboard />;
     }
   };
@@ -154,6 +157,7 @@ function AppContent({ currentView, setCurrentView }) {
     { id: 'distribution', label: 'Distribución', icon: Scale },
     { id: 'clients', label: 'Clientes', icon: Users },
     { id: 'products', label: 'Productos', icon: Boxes },
+    { id: 'sabri-reporte', label: 'Ventas Sabri', icon: ClipboardList },
   ];
 
   return (
@@ -278,7 +282,7 @@ function AppContent({ currentView, setCurrentView }) {
                 <button className="mobile-menu-btn" onClick={toggleSidebar}>
                   <Menu size={24} />
                 </button>
-                <h1>{navItems.find(i => i.id === activeTab).label}</h1>
+                <h1>{navItems.find(i => i.id === activeTab)?.label}</h1>
               </div>
               <button
                 className="help-btn"
