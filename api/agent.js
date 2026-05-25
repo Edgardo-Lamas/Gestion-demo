@@ -109,7 +109,7 @@ async function executeTool(name, input, supabase) {
   switch (name) {
     case 'consultar_productos': {
       const [{ data: productos }, { data: compras }] = await Promise.all([
-        supabase.from('productos').select('id, nombre, unidad, precio_catalogo, margen').order('nombre'),
+        supabase.from('productos').select('id, nombre, unidad, precio_catalogo, margen_ganancia').order('nombre'),
         supabase.from('compras').select('producto_id, cantidad_disponible')
       ]);
       const stock = calcularStock(compras);
@@ -117,6 +117,7 @@ async function executeTool(name, input, supabase) {
         nombre: p.nombre,
         unidad: p.unidad,
         precio_catalogo: p.precio_catalogo,
+        margen: p.margen_ganancia,
         stock_actual: stock[p.id] || 0
       })) ?? [];
     }
@@ -134,9 +135,9 @@ async function executeTool(name, input, supabase) {
         fecha: v.fecha,
         producto: prodMap[v.producto_id] || v.producto_id,
         cliente: v.cliente_id ? cliMap[v.cliente_id] : 'Mostrador',
-        cantidad: v.cantidad,
-        precio_unitario: v.precio_unitario,
-        total: v.total,
+        cantidad: v.cantidad_vendida,
+        precio_unitario: v.precio_venta_unitario,
+        total: v.ingreso_total,
         ganancia: v.ganancia
       })) ?? [];
     }
@@ -151,7 +152,7 @@ async function executeTool(name, input, supabase) {
       return compras?.map(c => ({
         fecha: c.fecha,
         producto: prodMap[c.producto_id] || c.producto_id,
-        cantidad_total: c.cantidad_total,
+        cantidad_total: c.cantidad_kg,
         cantidad_disponible: c.cantidad_disponible,
         costo_unitario: c.costo_unitario
       })) ?? [];
@@ -175,7 +176,7 @@ async function executeTool(name, input, supabase) {
     case 'consultar_clientes': {
       const { data: clientes } = await supabase
         .from('clientes')
-        .select('nombre, telefono, email, created_at')
+        .select('nombre, telefono, email, direccion, categoria, created_at')
         .order('nombre');
       return clientes ?? [];
     }

@@ -17,6 +17,8 @@ import {
   Users,
   Boxes,
   ClipboardList,
+  Truck,
+  PackageCheck,
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -28,6 +30,9 @@ import MeatDistribution from './components/MeatDistribution';
 import B2BStoreFront from './components/B2BStoreFront';
 
 import ClientProfiles from './components/ClientProfiles';
+import PedidosRecepcion from './components/PedidosRecepcion';
+import PanelArmado from './components/PanelArmado';
+import PanelRepartidor from './components/PanelRepartidor';
 import Products from './components/Products';
 import Entrega from './components/Entrega';
 import ReporteSabri from './components/ReporteSabri';
@@ -148,6 +153,9 @@ function AppContent({ currentView, setCurrentView }) {
       case 'clients': return <ClientProfiles clientes={clientes} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
       case 'products': return <Products productos={productos} compras={compras} ventas={ventas} distribuciones={distribuciones} stock_actual={stock_actual} clientes={clientes} descuentos={descuentos} onUpdate={fetchData} />;
       case 'sabri-reporte': return <ReporteSabriAdmin distribuciones={distribuciones} productos={productos} />;
+      case 'pedidos': return <PedidosRecepcion clientes={clientes} productos={productos} onUpdate={fetchData} />;
+      case 'armado': return <PanelArmado onUpdate={fetchData} />;
+      case 'reparto': return <PanelRepartidor onUpdate={fetchData} />;
       default: return <Dashboard />;
     }
   };
@@ -161,7 +169,9 @@ function AppContent({ currentView, setCurrentView }) {
     { id: 'distribution', label: 'Distribución', icon: Scale },
     { id: 'clients', label: 'Clientes', icon: Users },
     { id: 'products', label: 'Productos', icon: Boxes },
-    { id: 'sabri-reporte', label: 'Ventas Sabri', icon: ClipboardList },
+    { id: 'pedidos', label: 'Pedidos', icon: ClipboardList },
+    { id: 'armado', label: 'Armado', icon: PackageCheck },
+    { id: 'reparto', label: 'Reparto', icon: Truck },
   ];
 
   return (
