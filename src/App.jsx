@@ -33,6 +33,7 @@ import Entrega from './components/Entrega';
 import ReporteSabri from './components/ReporteSabri';
 import ReporteSabriAdmin from './components/ReporteSabriAdmin';
 import SabriPanel from './components/SabriPanel';
+import AgentChat from './components/AgentChat';
 
 function AppContent({ currentView, setCurrentView }) {
   const { logout } = useAuth();
@@ -354,6 +355,8 @@ function AppContent({ currentView, setCurrentView }) {
               </div>
             )}
           </main>
+
+          <AgentChat />
 
           <style jsx>{`
           .app-container {
