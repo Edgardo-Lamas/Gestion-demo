@@ -134,10 +134,19 @@ entregas       (id, pedido_id, repartidor_id, estado, coordenadas, hora_entrega,
 - [ ] Confirmación doble para acciones destructivas
 
 ### FASE 4: Facturación Electrónica ARCA/AFIP
+⚠️ *Solo si el proyecto es aprobado por el cliente*
 - [ ] Integración con API de ARCA (ex-AFIP)
 - [ ] Emisión de facturas tipo A, B, C
 - [ ] Comprobantes electrónicos desde el panel de ventas
 - [ ] Historial de facturas emitidas
+- [ ] Nota: diseñar schema de ventas/pedidos con campo `factura_id` desde ahora para no romper nada al integrar
+
+### FASE 4B: Sistema de Pagos
+⚠️ *Solo si el proyecto es aprobado por el cliente*
+- [ ] Integración con MercadoPago o similar
+- [ ] Link de pago por pedido
+- [ ] Estado de pago en panel de Recepción (pendiente / pagado)
+- [ ] Nota: tabla `pedidos` ya tiene campo `total` — agregar `estado_pago` y `pago_id` cuando llegue esta fase
 
 ### FASE 5: Rediseño UI (más profesional)
 - [ ] Sistema de diseño unificado (variables CSS, tokens de color/tamaño)

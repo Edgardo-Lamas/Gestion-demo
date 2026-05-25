@@ -1,8 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { ClipboardList, Plus, Check, X, Eye, Clock, CheckCircle, Truck, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ClipboardList, Plus, Check, X, Eye, Clock, CheckCircle, Truck, XCircle, ChevronDown, ChevronUp, Bell } from 'lucide-react';
 import Modal from './ui/Modal';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
+
+function pedirPermisosNotificacion() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function notificarNuevoPedido(cliente) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('🛒 Nuevo pedido recibido', {
+      body: `${cliente || 'Cliente'} acaba de hacer un pedido`,
+      icon: '/favicon.ico',
+    });
+  }
+}
+
+function sonarAlerta() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 150, 300].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + delay / 1000);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay / 1000 + 0.3);
+      osc.start(ctx.currentTime + delay / 1000);
+      osc.stop(ctx.currentTime + delay / 1000 + 0.3);
+    });
+  } catch (_) {}
+}
 
 const ESTADOS = {
   pendiente:  { label: 'Pendiente',  color: '#f59e0b', icon: Clock },
@@ -38,6 +70,7 @@ const PedidosRecepcion = ({ clientes, productos, onUpdate }) => {
 
   const [nuevoPedido, setNuevoPedido] = useState({ cliente_id: '', observaciones: '', items: [] });
   const [itemTemp, setItemTemp] = useState({ producto_id: '', cantidad: '', precio_unitario: '' });
+  const pedidosIdsRef = useRef(new Set());
 
   const fetchPedidos = async () => {
     setLoading(true);
@@ -59,10 +92,25 @@ const PedidosRecepcion = ({ clientes, productos, onUpdate }) => {
   };
 
   useEffect(() => {
+    pedirPermisosNotificacion();
     fetchPedidos();
     const channel = supabase
       .channel('pedidos-recepcion')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, fetchPedidos)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pedidos' }, async (payload) => {
+        const nuevo = payload.new;
+        if (pedidosIdsRef.current.has(nuevo.id)) return;
+        pedidosIdsRef.current.add(nuevo.id);
+        sonarAlerta();
+        // Buscar nombre del cliente para la notificación
+        let nombreCliente = 'Cliente';
+        if (nuevo.cliente_id) {
+          const { data } = await supabase.from('clientes').select('nombre').eq('id', nuevo.cliente_id).single();
+          if (data) nombreCliente = data.nombre;
+        }
+        notificarNuevoPedido(nombreCliente);
+        fetchPedidos();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pedidos' }, fetchPedidos)
       .subscribe();
     return () => supabase.removeChannel(channel);
   }, []);
@@ -126,9 +174,16 @@ const PedidosRecepcion = ({ clientes, productos, onUpdate }) => {
     <div style={{ padding: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 700 }}>Recepción de Pedidos</h2>
-        <button className="btn-primary" onClick={() => setModalNuevo(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Plus size={16} /> Nuevo Pedido
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {'Notification' in window && Notification.permission !== 'granted' && (
+            <button onClick={pedirPermisosNotificacion} title="Activar alertas de nuevos pedidos" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fef3c7', color: '#92400e', border: '1px solid #fcd34d', borderRadius: '8px', padding: '7px 12px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}>
+              <Bell size={14} /> Activar alertas
+            </button>
+          )}
+          <button className="btn-primary" onClick={() => setModalNuevo(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Plus size={16} /> Nuevo Pedido
+          </button>
+        </div>
       </div>
 
       {/* Filtros */}

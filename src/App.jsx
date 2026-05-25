@@ -33,6 +33,7 @@ import ClientProfiles from './components/ClientProfiles';
 import PedidosRecepcion from './components/PedidosRecepcion';
 import PanelArmado from './components/PanelArmado';
 import PanelRepartidor from './components/PanelRepartidor';
+import PortalPedidos from './components/PortalPedidos';
 import Products from './components/Products';
 import Entrega from './components/Entrega';
 import ReporteSabri from './components/ReporteSabri';
@@ -852,6 +853,7 @@ function AppAuthWrapper() {
     if (view === 'entrega') return 'entrega';
     if (view === 'reporte') return 'reporte';
     if (view === 'sabri') return 'sabri';
+    if (view === 'pedido') return 'pedido';
     return 'app';
   });
 
@@ -859,6 +861,10 @@ function AppAuthWrapper() {
   if (currentView === 'entrega') return <Entrega />;
   if (currentView === 'reporte') return <ReporteSabri />;
   if (currentView === 'sabri') return <SabriPanel />;
+  if (currentView === 'pedido') {
+    const params = new URLSearchParams(window.location.search);
+    return <PortalPedidos clienteId={params.get('cliente')} />;
+  }
 
   if (loading) {
     return (
