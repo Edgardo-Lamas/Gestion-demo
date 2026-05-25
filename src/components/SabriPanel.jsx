@@ -559,7 +559,7 @@ export default function SabriPanel() {
           <span className="sp-header-emoji">🥩</span>
           <div>
             <div className="sp-header-title">Mis Ventas</div>
-            <div className="sp-header-sub">Gestión Sabri</div>
+            <div className="sp-header-sub">Sistema Demo</div>
           </div>
         </div>
 

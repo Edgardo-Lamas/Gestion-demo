@@ -38,7 +38,7 @@ const Login = ({ onGoToStorefront }) => {
                         <div className="logo-ring">
                             <span className="logo-letter">S</span>
                         </div>
-                        <h1 className="brand-title">Gestión Sabri</h1>
+                        <h1 className="brand-title">Sistema Demo</h1>
                         <p className="brand-subtitle">Panel de Control</p>
                     </div>
 

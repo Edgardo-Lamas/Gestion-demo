@@ -767,7 +767,7 @@ export default function Entrega() {
           {/* ── SISTEMA ENTREGADO ── */}
           <section className="entrega-section">
             <h2 className="entrega-section-title">Sistema entregado</h2>
-            <h3 className="entrega-sistema-nombre">Gestión Sabri — Panel de Control</h3>
+            <h3 className="entrega-sistema-nombre">Sistema Demo — Panel de Control</h3>
             <p className="entrega-sistema-desc">
               Sistema integral de gestión para carnicería mayorista. Incluye control de stock en tiempo real,
               registro de compras y ventas con método FIFO, administración de gastos operativos, gestión de

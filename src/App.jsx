@@ -198,7 +198,7 @@ function AppContent({ currentView, setCurrentView }) {
           <nav className={`sidebar glass-card ${isSidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
               <div className="logo">
-                <h2>Gestión Sabri</h2>
+                <h2>Sistema Demo</h2>
               </div>
               <button className="mobile-close-btn" onClick={closeSidebar}>
                 <X size={24} />
