@@ -856,10 +856,7 @@ function AppAuthWrapper() {
     );
   }
 
-  // If user is not logged in, they can only see Login or Storefront
-  if (!user && currentView === 'app') {
-    return <Login onGoToStorefront={() => setCurrentView('storefront')} />;
-  }
+  // Demo: acceso libre sin login
 
   return (
     <AppContent currentView={currentView} setCurrentView={setCurrentView} />
