@@ -37,7 +37,8 @@ Edgardo Lamas — Studio Lamas · Desarrollo Digital
 - Frontend: React 19 + Vite — desplegado en Vercel
 - Base de datos: Supabase (PostgreSQL)
   - URL: https://gnrzfzzrdwwvusyvcudw.supabase.co
-  - 7 tablas creadas: productos, compras, ventas, gastos, distribuciones, clientes, cliente_productos
+  - 10 tablas: productos, compras, ventas, gastos, distribuciones, clientes, cliente_productos, **pedidos, pedido_items, entregas**
+- Variables de entorno en Vercel: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, ANTHROPIC_API_KEY
 - Auth: deshabilitada temporalmente para demo (acceso libre)
 - Deploy: automático desde GitHub main → Vercel
 
@@ -64,6 +65,11 @@ Edgardo Lamas — Studio Lamas · Desarrollo Digital
 | Catálogo B2B | ✅ Funciona | Portal público para clientes mayoristas con carrito → WhatsApp |
 | Documento Entrega | ✅ Funciona | Vista pública con contraseña para el repartidor |
 | Login | ⏸ Deshabilitado | Desactivado para el demo — reactivar en producción |
+| **Pedidos (Recepción)** | ✅ Nuevo | Panel Gladys: lista pedidos, filtros por estado, aprobar/cancelar, crear manual. Notificación browser + sonido al recibir pedido nuevo |
+| **Panel Armado** | ✅ Nuevo | Checklist por pedido, botón Despachar habilitado al completar todos los items, crea registro en entregas |
+| **Panel Repartidor** | ✅ Nuevo | Hoja de ruta, botón Ver mapa (Google Maps), confirmar entrega con observaciones, historial |
+| **Portal Clientes (PWA)** | ✅ Nuevo | Link único por cliente `?view=pedido&cliente=ID`, catálogo con stock real, carrito, pantalla de confirmación |
+| **Agente IA "Agi"** | ✅ Construido | api/agent.js — Claude Sonnet, 7 herramientas (ventas, stock, compras, gastos, clientes, stock bajo, resumen diario). Pendiente: prueba en producción |
 
 ### Capacidades técnicas destacadas (ventajas vs GDS)
 - Algoritmo FIFO real por lote de compra
@@ -225,7 +231,19 @@ En implementaciones con múltiples usuarios (ej: estudiantes de cursos), se prod
 
 ## 9. Próximo Paso Inmediato
 
-Arrancar **Fase 1**: personalizar el demo con la identidad de AGIAPURR y cargar productos reales, para que el cliente pueda ver su negocio reflejado en el sistema antes de avanzar con las funcionalidades nuevas.
+### MVP Funcional — completado ✅
+- ✅ Schema pedidos, pedido_items, entregas en Supabase
+- ✅ Panel Recepción (Gladys) con notificaciones
+- ✅ Panel Armado con checklist
+- ✅ Panel Repartidor con confirmación de entrega
+- ✅ Portal PWA por cliente con pantalla de confirmación
+- ✅ Agente IA "Agi" construido y con variables en Vercel
+
+### Siguiente sesión — por hacer (en orden)
+1. **Probar el flujo completo de punta a punta** — crear pedido desde portal, aprobarlo, armarlo, despacharlo, entregarlo. Verificar Realtime en vivo.
+2. **Probar el Agente "Agi"** — verificar que responde correctamente con el schema corregido (AgentChat.jsx en el panel).
+3. **Cargar productos reales de AGIAPURR** — yerbas y marcas reales (El Colono, Flor de Jardín, Tucangua, etc.) con campo `unidad` correcto.
+4. **UX/UI para presentación al cliente** — recién después de validar todo lo funcional.
 
 ---
 
