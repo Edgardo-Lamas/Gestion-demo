@@ -1,10 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 
+const SUPABASE_URL = 'https://gnrzfzzrdwwvusyvcudw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducnpmenpyZHd3dnVzeXZjdWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NzMwODcsImV4cCI6MjA5NTI0OTA4N30.ue7RbMWRFqv4LC5WBpt5O0p3ZIkODUsBaZyTaPU33nY';
+
 function getSupabase() {
   return createClient(
-    process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY
+    process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY
   );
 }
 
