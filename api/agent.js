@@ -254,6 +254,9 @@ async function executeTool(name, input, supabase) {
         supabase.from('productos').select('id, nombre, unidad, precio_catalogo, margen_ganancia, costo_referencia').order('nombre'),
         supabase.from('compras').select('producto_id, cantidad_disponible')
       ]);
+      if (resP.error) console.error('[AGI-ERR] productos:', JSON.stringify(resP.error));
+      if (resC.error) console.error('[AGI-ERR] compras:', JSON.stringify(resC.error));
+      console.log('[AGI-DB] productos count:', resP.data?.length ?? 'null');
       const productos = resP.data; const compras = resC.data;
       const stock = calcularStock(compras);
       return productos?.map(p => ({
