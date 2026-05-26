@@ -54,22 +54,22 @@ Edgardo Lamas — Studio Lamas · Desarrollo Digital
 
 | Módulo | Estado | Descripción |
 |---|---|---|
-| Dashboard | ✅ Funciona | Gráficos financieros — ingresos, gastos, ganancia, stock valorizado |
+| Dashboard | ✅ Funciona | Gráficos financieros — ingresos, gastos, ganancia, stock valorizado. Datos 100% de Supabase real |
 | Compras | ✅ Funciona | Ingreso de lotes con costo unitario — base del algoritmo FIFO |
 | Ventas | ✅ Funciona | Registro con cálculo automático de ganancia real |
 | Gastos | ✅ Funciona | Gastos operativos categorizados |
 | Stock/Inventario | ✅ Funciona | Vista de stock con costo promedio ponderado en tiempo real |
-| Distribución | ✅ Funciona | Entrega a empleados con trazabilidad (renombrar para AGIAPURR) |
+| Distribución | ✅ Funciona | Entrega interna con trazabilidad (pendiente renombrar) |
 | Clientes | ✅ Funciona | ABM + precios personalizados por producto |
 | Productos | ✅ Funciona | Catálogo con margen y precio catálogo |
 | Catálogo B2B | ✅ Funciona | Portal público para clientes mayoristas con carrito → WhatsApp |
 | Documento Entrega | ✅ Funciona | Vista pública con contraseña para el repartidor |
 | Login | ⏸ Deshabilitado | Desactivado para el demo — reactivar en producción |
-| **Pedidos (Recepción)** | ✅ Nuevo | Panel Gladys: lista pedidos, filtros por estado, aprobar/cancelar, crear manual. Notificación browser + sonido al recibir pedido nuevo |
-| **Panel Armado** | ✅ Nuevo | Checklist por pedido, botón Despachar habilitado al completar todos los items, crea registro en entregas |
-| **Panel Repartidor** | ✅ Nuevo | Hoja de ruta, botón Ver mapa (Google Maps), confirmar entrega con observaciones, historial |
-| **Portal Clientes (PWA)** | ✅ Nuevo | Link único por cliente `?view=pedido&cliente=ID`, catálogo con stock real, carrito, pantalla de confirmación |
-| **Agente IA "Agi"** | ✅ Construido | api/agent.js — Claude Sonnet, 7 herramientas (ventas, stock, compras, gastos, clientes, stock bajo, resumen diario). Pendiente: prueba en producción |
+| **Pedidos (Recepción)** | ✅ Funciona | Panel Gladys: lista pedidos, filtros por estado, aprobar/cancelar, crear manual. Notificación browser + sonido al recibir pedido nuevo |
+| **Panel Armado** | ✅ Funciona | Checklist por pedido, botón Despachar habilitado al completar todos los items, crea registro en entregas |
+| **Panel Repartidor** | ✅ Funciona | Hoja de ruta, botón Ver mapa (Google Maps), confirmar entrega con observaciones, historial |
+| **Portal Clientes (PWA)** | ✅ Funciona | Link único por cliente `?view=pedido&cliente=ID`, catálogo con stock real, carrito, pantalla de confirmación |
+| **Agente IA "Agi"** | ✅ Testeado | api/agent.js — Claude Sonnet 4.6, **10 herramientas** verificadas en producción con datos reales de Supabase |
 
 ### Capacidades técnicas destacadas (ventajas vs GDS)
 - Algoritmo FIFO real por lote de compra
@@ -239,11 +239,87 @@ En implementaciones con múltiples usuarios (ej: estudiantes de cursos), se prod
 - ✅ Portal PWA por cliente con pantalla de confirmación
 - ✅ Agente IA "Agi" construido y con variables en Vercel
 
-### Siguiente sesión — por hacer (en orden)
-1. **Probar el flujo completo de punta a punta** — crear pedido desde portal, aprobarlo, armarlo, despacharlo, entregarlo. Verificar Realtime en vivo.
-2. **Probar el Agente "Agi"** — verificar que responde correctamente con el schema corregido (AgentChat.jsx en el panel).
-3. **Cargar productos reales de AGIAPURR** — yerbas y marcas reales (El Colono, Flor de Jardín, Tucangua, etc.) con campo `unidad` correcto.
-4. **UX/UI para presentación al cliente** — recién después de validar todo lo funcional.
+### Completado ✅
+- ✅ Agente Agi — 10 herramientas testeadas en producción con datos reales
+- ✅ Datos demo completos (productos, compras, ventas, clientes, gastos)
+- ✅ Dashboard conectado 100% a Supabase (env vars corregidas en Vercel)
+- ✅ Rediseño UI/UX — paleta AGIAPURR, sidebar oscuro, Nunito, sin Sabri
+
+### Siguiente sesión — ver sección 13
+
+---
+
+## 10. Datos Demo Cargados en Supabase
+
+Todos los datos demo están en el proyecto `gnrzfzzrdwwvusyvcudw` (Supabase Gestion-demo).
+
+| Tabla | Registros | Notas |
+|---|---|---|
+| productos | 16 | Yerbas (con palo, orgánicas, agroec.), conservas, lácteos |
+| compras | 22 lotes | 2 oleadas: 28/4 pre-temporada + 12/5 reposición |
+| ventas | 32 | Mayo 2026 — fechas CURRENT_DATE - 22 a -1 |
+| clientes | 7 | 4 mayoristas + 2 minoristas + 1 genérico |
+| gastos | 14 | Combustible, alquiler, materiales, marketing, vehículo |
+
+**Scripts de migración disponibles en raíz del proyecto:**
+- `migration_productos_agiapurr.sql`
+- `migration_compras_demo_mayo2026.sql`
+- `migration_ventas_demo_mayo2026.sql`
+- `migration_clientes_demo.sql`
+- `migration_gastos_demo_mayo2026.sql`
+- `migration_ventas_vincular_clientes.sql`
+
+---
+
+## 11. Agente IA "Agi" — Estado y Herramientas
+
+**Archivo:** `api/agent.js` — serverless Vercel, Claude Sonnet 4.6
+
+**Credenciales:** URL + anon key de Supabase hardcodeadas en el archivo (no depende de env vars para evitar colisión con otros proyectos en la misma cuenta Vercel).
+
+**10 herramientas testeadas en producción:**
+
+| Herramienta | Estado | Descripción |
+|---|---|---|
+| `consultar_productos` | ✅ | Catálogo con stock calculado desde compras |
+| `consultar_ventas` | ✅ | Ventas por período con cliente y producto |
+| `consultar_compras` | ✅ | Lotes de compra con disponible |
+| `consultar_gastos` | ✅ | Gastos operativos por período |
+| `consultar_clientes` | ✅ | Listado de clientes activos |
+| `stock_bajo` | ✅ | Productos bajo umbral configurable |
+| `resumen_diario` | ✅ | Ventas + gastos + stock bajo del día |
+| `productos_mas_vendidos` | ✅ | Ranking por volumen e ingresos |
+| `ventas_por_cliente` | ✅ | Desglose de facturación por cliente |
+| `clientes_inactivos` | ✅ | Clientes sin actividad en X días |
+
+---
+
+## 12. UI/UX — Estado del Rediseño
+
+**Completado (mayo 2026):**
+- Paleta AGIAPURR: verde forestal `#3B7A57`, madera `#8B5E3C`, dorado `#C9A84C`, fondo crema `#F4F1EB`
+- Sidebar oscuro `#1B3A2A` con ítems dorados en activo/hover
+- Tipografía Nunito (Google Fonts)
+- Branding: "AGIAPURR Gestión" + logo 🌿 en sidebar
+- Usuario "Gladys" — sin referencias a Sabrina
+- Guía de uso actualizada para el rubro
+
+**Pendiente UI/UX (próxima sesión):**
+- Revisar componentes individuales — pueden tener naranja residual de Sabri en botones/tables
+- AgentChat.jsx — mejorar diseño del botón flotante con nueva paleta
+- Renombrar módulo "Distribución" a algo acorde al negocio
+- Favicon real AGIAPURR (`/icon-agiapurr.svg` apunta a archivo inexistente)
+- Entrega.jsx aún tiene "Sistema Demo" en algunos strings
+
+---
+
+## 13. Próxima Sesión — Por hacer (en orden)
+
+1. **UI/UX continuación** — revisar naranja residual en componentes internos, AgentChat, favicon
+2. **Flujo pedidos punta a punta** — crear pedido desde portal, aprobarlo, armarlo, despacharlo, entregarlo
+3. **Renombrar "Distribución"** según necesidad real del negocio
+4. **Entrega.jsx** — limpiar strings "Sistema Demo" restantes
+5. **UX mobile** — verificar que Pedidos/Armado/Reparto funcionan bien en celular
 
 ---
 
