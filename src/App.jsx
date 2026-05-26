@@ -19,6 +19,8 @@ import {
   ClipboardList,
   Truck,
   PackageCheck,
+  Wallet,
+  Store,
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -34,6 +36,8 @@ import PedidosRecepcion from './components/PedidosRecepcion';
 import PanelArmado from './components/PanelArmado';
 import PanelRepartidor from './components/PanelRepartidor';
 import PortalPedidos from './components/PortalPedidos';
+import CajaDiaria from './components/CajaDiaria';
+import PedidosProveedores from './components/PedidosProveedores';
 import Products from './components/Products';
 import Entrega from './components/Entrega';
 import ReporteSabri from './components/ReporteSabri';
@@ -145,7 +149,7 @@ function AppContent({ currentView, setCurrentView }) {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': return <Dashboard compras={compras} ventas={ventas} gastos={gastos} productos={productos} stock_actual={stock_actual} />;
+      case 'dashboard': return <Dashboard compras={compras} ventas={ventas} gastos={gastos} productos={productos} stock_actual={stock_actual} onNavigate={handleTabChange} />;
       case 'purchases': return <Purchases productos={productos} compras={compras} onUpdate={fetchData} />;
       case 'sales': return <Sales productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} clientes={clientes} descuentos={descuentos} onUpdate={fetchData} />;
       case 'expenses': return <Expenses gastos={gastos} onUpdate={fetchData} />;
@@ -157,6 +161,8 @@ function AppContent({ currentView, setCurrentView }) {
       case 'pedidos': return <PedidosRecepcion clientes={clientes} productos={productos} onUpdate={fetchData} />;
       case 'armado': return <PanelArmado onUpdate={fetchData} />;
       case 'reparto': return <PanelRepartidor onUpdate={fetchData} />;
+      case 'caja': return <CajaDiaria />;
+      case 'proveedores': return <PedidosProveedores />;
       default: return <Dashboard />;
     }
   };
@@ -170,6 +176,8 @@ function AppContent({ currentView, setCurrentView }) {
     { id: 'distribution', label: 'Distribución', icon: Scale },
     { id: 'clients', label: 'Clientes', icon: Users },
     { id: 'products', label: 'Productos', icon: Boxes },
+    { id: 'caja', label: 'Caja', icon: Wallet },
+    { id: 'proveedores', label: 'Proveedores', icon: Store },
     { id: 'pedidos', label: 'Pedidos', icon: ClipboardList },
     { id: 'armado', label: 'Armado', icon: PackageCheck },
     { id: 'reparto', label: 'Reparto', icon: Truck },

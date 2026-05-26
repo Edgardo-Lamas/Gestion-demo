@@ -3,6 +3,7 @@ import { ClipboardList, Plus, Check, X, Eye, Clock, CheckCircle, Truck, XCircle,
 import Modal from './ui/Modal';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
+import ComentariosPedido from './ComentariosPedido';
 
 function pedirPermisosNotificacion() {
   if ('Notification' in window && Notification.permission === 'default') {
@@ -289,6 +290,9 @@ const PedidosRecepcion = ({ clientes, productos, onUpdate }) => {
                       </button>
                     )}
                   </div>
+
+                  {/* Notas del pedido */}
+                  <ComentariosPedido pedidoId={p.id} autor="Recepción" />
                 </div>
               )}
             </div>

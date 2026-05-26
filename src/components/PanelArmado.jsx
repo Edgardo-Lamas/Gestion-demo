@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Package, CheckSquare, Square, Send } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
+import ComentariosPedido from './ComentariosPedido';
 
 const PanelArmado = ({ onUpdate }) => {
   const { addToast } = useToast();
@@ -159,6 +160,9 @@ const PanelArmado = ({ onUpdate }) => {
                     <Send size={14} /> Despachar
                   </button>
                 </div>
+
+                {/* Notas del pedido */}
+                <ComentariosPedido pedidoId={pedido.id} autor="Armado" />
               </div>
             );
           })}

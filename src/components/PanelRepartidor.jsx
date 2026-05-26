@@ -3,6 +3,7 @@ import { Truck, CheckCircle, MapPin, Phone, Package } from 'lucide-react';
 import Modal from './ui/Modal';
 import { useToast } from '../context/ToastContext';
 import { supabase } from '../lib/supabase';
+import ComentariosPedido from './ComentariosPedido';
 
 const PanelRepartidor = ({ onUpdate }) => {
   const { addToast } = useToast();
@@ -187,6 +188,9 @@ const PanelRepartidor = ({ onUpdate }) => {
                         <CheckCircle size={16} /> Entregado
                       </button>
                     </div>
+
+                    {/* Notas del pedido */}
+                    <ComentariosPedido pedidoId={pedido.id} autor="Repartidor" />
                   </div>
                 </div>
               </div>
