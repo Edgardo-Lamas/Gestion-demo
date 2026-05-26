@@ -251,20 +251,25 @@ async function executeTool(name, input, supabase) {
   switch (name) {
     case 'consultar_productos': {
       const [resP, resC] = await Promise.all([
-        supabase.from('productos').select('id, nombre, unidad, precio_catalogo, margen_ganancia, costo_referencia').order('nombre'),
+        supabase.from('productos').select('id, nombre, unidad, margen_ganancia, costo_referencia').order('nombre'),
         supabase.from('compras').select('producto_id, cantidad_disponible')
       ]);
       if (resP.error) return { _error: true, message: resP.error.message, code: resP.error.code, hint: resP.error.hint };
       const productos = resP.data; const compras = resC.data;
       const stock = calcularStock(compras);
-      return productos?.map(p => ({
-        nombre: p.nombre,
-        unidad: p.unidad,
-        precio_catalogo: p.precio_catalogo,
-        costo_referencia: p.costo_referencia,
-        margen: p.margen_ganancia,
-        stock_actual: stock[p.id] || 0
-      })) ?? [];
+      return productos?.map(p => {
+        const costo = p.costo_referencia || 0;
+        const margen = p.margen_ganancia || 0;
+        const precio_catalogo = margen > 0 ? +(costo * (1 + margen / 100)).toFixed(2) : null;
+        return {
+          nombre: p.nombre,
+          unidad: p.unidad,
+          precio_catalogo,
+          costo_referencia: costo,
+          margen: margen,
+          stock_actual: stock[p.id] || 0
+        };
+      }) ?? [];
     }
 
     case 'consultar_ventas': {
@@ -321,7 +326,7 @@ async function executeTool(name, input, supabase) {
     case 'consultar_clientes': {
       const { data: clientes } = await supabase
         .from('clientes')
-        .select('nombre, telefono, email, direccion, categoria, notas, fecha_alta')
+        .select('nombre, telefono, direccion, categoria, notas, fecha_alta')
         .order('nombre');
       return clientes ?? [];
     }
