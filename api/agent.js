@@ -2,11 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 
 function getSupabase() {
-  const url = process.env.SUPABASE_SERVICE_ROLE_KEY
-    ? (process.env.SUPABASE_URL || 'https://gnrzfzzrdwwvusyvcudw.supabase.co')
-    : 'https://gnrzfzzrdwwvusyvcudw.supabase.co';
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-    || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducnpmenpyZHd3dnVzeXZjdWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NzMwODcsImV4cCI6MjA5NTI0OTA4N30.ue7RbMWRFqv4LC5WBpt5O0p3ZIkODUsBaZyTaPU33nY';
+  const url = 'https://gnrzfzzrdwwvusyvcudw.supabase.co';
+  const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImducnpmenpyZHd3dnVzeXZjdWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NzMwODcsImV4cCI6MjA5NTI0OTA4N30.ue7RbMWRFqv4LC5WBpt5O0p3ZIkODUsBaZyTaPU33nY';
   return createClient(url, key);
 }
 
@@ -257,8 +254,6 @@ async function executeTool(name, input, supabase) {
         supabase.from('productos').select('id, nombre, unidad, precio_catalogo, margen_ganancia, costo_referencia').order('nombre'),
         supabase.from('compras').select('producto_id, cantidad_disponible')
       ]);
-      console.log('[DIAG] productos:', resP.data?.length ?? 'null', 'error:', resP.error?.message);
-      console.log('[DIAG] compras:', resC.data?.length ?? 'null', 'error:', resC.error?.message);
       const productos = resP.data; const compras = resC.data;
       const stock = calcularStock(compras);
       return productos?.map(p => ({
