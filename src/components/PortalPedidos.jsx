@@ -60,7 +60,8 @@ const PortalPedidos = ({ clienteId }) => {
     const d = descuentos[producto.id];
     if (d?.precio_fijo) return d.precio_fijo;
     const margen = d?.margen ?? producto.margen_ganancia ?? 0;
-    return producto.precio_catalogo || 0;
+    const costo = producto.costo_referencia || 0;
+    return producto.precio_catalogo || (costo * (1 + margen / 100));
   };
 
   const setCantidad = (productoId, delta) => {
