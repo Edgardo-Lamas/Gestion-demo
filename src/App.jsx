@@ -337,39 +337,137 @@ function AppContent({ currentView, setCurrentView }) {
                     </button>
                   </div>
                   <div className="modal-body user-guide">
-                    <h3>1. Compras (Ingreso de Mercadería)</h3>
-                    <p>
-                      Todo empieza aquí. Cada vez que comprás mercadería al proveedor, registralo en <strong>Compras</strong>.
-                      El sistema suma automáticamente las unidades a tu <strong>Stock</strong>. Si es un producto nuevo, te pedirá que lo crees primero en Productos.
+
+                    <p style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '10px 14px', fontSize: '0.88rem', color: '#166534', marginBottom: '1.5rem' }}>
+                      💡 Esta guía explica cada módulo del sistema. Podés leerla completa la primera vez, o volver a consultarla cuando tengas dudas sobre alguna función específica.
                     </p>
 
-                    <h3>2. Ventas (Salida de Mercadería)</h3>
+                    <h3>🏠 1. Resumen (Tablero Principal)</h3>
                     <p>
-                      Cuando vendés a un cliente, ve a <strong>Ventas</strong>. Al registrar la venta, el sistema descuenta las unidades del <strong>Stock</strong> disponible y calcula la ganancia real automáticamente.
-                      Usa método FIFO: siempre descuenta primero el lote más antiguo.
+                      Es la primera pantalla que ves al entrar. Te muestra el estado del negocio de un vistazo:
+                      <br />— <strong>Reloj y saludo</strong> en tiempo real con la fecha del día.
+                      <br />— <strong>Accesos rápidos</strong>: botones para ir directo a Nueva Venta, Pedidos pendientes y Caja del Día.
+                      <br />— <strong>KPIs del mes</strong>: ingresos, ganancia bruta, gastos y stock valorizado.
+                      <br />— <strong>Mini calendario</strong>: los días con ventas aparecen marcados con un punto verde.
+                      <br />— <strong>Ranking de productos</strong>: los más vendidos del período seleccionado.
                     </p>
 
-                    <h3>3. Distribución (Entrega Interna)</h3>
+                    <h3>🛒 2. Compras (Ingreso de Mercadería)</h3>
                     <p>
-                      Si entregás mercadería a empleados o repartidores para que trabajen con ella, registralo en <strong>Distribución</strong>.
-                      Podés saber en todo momento cuánta mercadería tiene cada persona bajo su responsabilidad.
+                      Todo empieza aquí. Cada vez que recibís mercadería de un proveedor, registrás la compra en este módulo.
+                      <br />— Ingresás el producto, la cantidad y el costo unitario de ese lote.
+                      <br />— El sistema suma automáticamente las unidades al <strong>Stock</strong> disponible.
+                      <br />— Cada lote queda registrado con su costo propio — esto es la base del cálculo de ganancia real.
+                      <br /><em>Tip: Si el producto no existe todavía, crealo primero en el módulo Productos.</em>
                     </p>
 
-                    <h3>4. Resumen (Tablero Principal)</h3>
+                    <h3>💰 3. Ventas (Salida de Mercadería)</h3>
                     <p>
-                      El <strong>Resumen</strong> es tu centro de control. De un vistazo ves ingresos, ganancia bruta, gastos del mes, productos más vendidos y el estado del stock. Agi, tu asistente IA, está disponible en la esquina inferior derecha.
+                      Registrás cada venta que hacés a un cliente.
+                      <br />— Seleccionás el producto y la cantidad vendida.
+                      <br />— El sistema descuenta el stock automáticamente usando <strong>método FIFO</strong>: siempre consume primero el lote más antiguo.
+                      <br />— Calcula la <strong>ganancia real</strong> de esa venta comparando el precio de venta con el costo real del lote utilizado.
+                      <br />— Podés asociar la venta a un cliente para tener historial por cuenta.
                     </p>
 
-                    <h3>5. Catálogo B2B (Portal para Clientes)</h3>
+                    <h3>📋 4. Gastos (Egresos Operativos)</h3>
                     <p>
-                      Es la vidriera para tus clientes mayoristas. Muestra stock real y precios actualizados.
-                      <br />
-                      - <strong>Precios:</strong> Se calculan automáticamente desde el costo + margen configurado en Productos.
-                      <br />
-                      - <strong>Pedidos:</strong> Tus clientes agregan productos al carrito y confirman — el pedido llega directo al panel de Recepción.
-                      <br />
-                      - <strong>PWA:</strong> Tus clientes pueden instalar el catálogo como app en su celular.
+                      Registrás todos los gastos del negocio que no son compras de mercadería: combustible, alquiler, packaging, publicidad, sueldos, etc.
+                      <br />— Cada gasto tiene categoría, fecha y monto.
+                      <br />— Aparecen restados en los KPIs del Resumen para que la ganancia neta sea real.
                     </p>
+
+                    <h3>📦 5. Stock (Inventario Actual)</h3>
+                    <p>
+                      Vista de todo lo que tenés disponible en este momento.
+                      <br />— Muestra el <strong>stock actual</strong> de cada producto (suma de los lotes disponibles).
+                      <br />— Muestra el <strong>costo promedio ponderado</strong>: si compraste el mismo producto a distintos precios, el sistema promedia automáticamente.
+                      <br />— Podés actualizar precios de catálogo desde aquí.
+                      <br /><em>Tip: Si un producto muestra stock 0 o negativo, revisá si hay ventas sin lote de compra asociado.</em>
+                    </p>
+
+                    <h3>👥 6. Clientes</h3>
+                    <p>
+                      ABM (alta, baja y modificación) de tus clientes.
+                      <br />— Podés ver el historial de compras de cada cliente.
+                      <br />— Configurás <strong>precios personalizados por producto</strong>: si a un cliente mayorista le vendés a precio especial, lo configurás aquí y el sistema lo aplica automáticamente.
+                      <br />— Cada cliente tiene un <strong>link único</strong> para el Portal de Pedidos (ver sección 12).
+                    </p>
+
+                    <h3>🏷️ 7. Productos</h3>
+                    <p>
+                      El catálogo de todo lo que vendés.
+                      <br />— Creás y editás productos con nombre, costo de referencia y margen de ganancia.
+                      <br />— El <strong>precio de venta</strong> se calcula automáticamente: costo + margen.
+                      <br />— Podés ocultar productos del catálogo público sin eliminarlos.
+                      <br /><em>Tip: El nombre del producto debe incluir la marca al principio seguida de guión largo (—) para que el módulo de Proveedores agrupe correctamente. Ejemplo: "El Colono — Yerba Mate 1kg".</em>
+                    </p>
+
+                    <h3>💵 8. Caja Diaria</h3>
+                    <p>
+                      Registro del efectivo y movimientos del día.
+                      <br />— Al empezar el día, abrís la caja con el monto inicial (lo que tenés en efectivo).
+                      <br />— Registrás cada <strong>ingreso</strong> (ventas en efectivo, cobros, transferencias) y cada <strong>egreso</strong> (compras, pagos, gastos, retiros).
+                      <br />— El sistema calcula el <strong>saldo actual</strong> en tiempo real: monto inicial + ingresos − egresos.
+                      <br />— Al cerrar el día, cerrás la caja. Al día siguiente se abre una nueva.
+                    </p>
+
+                    <h3>🏭 9. Proveedores (Pedidos a Proveedores)</h3>
+                    <p>
+                      El sistema analiza tu stock y tus ventas para sugerirte qué pedir y cuánto.
+                      <br />— La columna <strong>Días est.</strong> indica cuántos días de stock te quedan al ritmo de ventas actual: rojo = menos de 7 días, amarillo = menos de 15 días, verde = OK.
+                      <br />— La columna <strong>Sugerido</strong> calcula la cantidad recomendada para cubrir los próximos 45 días.
+                      <br />— Hacés clic en las filas que querés pedir, ajustás la cantidad si hace falta, y apretás <strong>Generar</strong>.
+                      <br />— El sistema agrupa los productos por proveedor y crea un pedido por cada uno.
+                      <br />— En la pestaña <strong>Pedidos</strong> podés cambiar el estado: Borrador → Enviado → Recibido.
+                    </p>
+
+                    <h3>📬 10. Pedidos — Recepción (Gladys)</h3>
+                    <p>
+                      Acá llegán todos los pedidos de los clientes, tanto los del portal web como los que cargás vos manualmente.
+                      <br />— Ves los pedidos en tiempo real: cuando un cliente confirma desde su celular, aparece instantáneamente.
+                      <br />— Podés <strong>Aprobar</strong> o <strong>Cancelar</strong> cada pedido.
+                      <br />— Al aprobar, el pedido pasa automáticamente al Panel de Armado.
+                      <br />— Dentro de cada pedido podés dejar <strong>notas internas</strong> que verán también Armado y el Repartidor (el ícono 💬).
+                      <br /><em>Tip: El sistema emite una notificación de sonido cuando entra un pedido nuevo.</em>
+                    </p>
+
+                    <h3>📦 11. Armado (Panel de Depósito)</h3>
+                    <p>
+                      Panel pensado para la persona que prepara los pedidos físicamente.
+                      <br />— Muestra los pedidos aprobados en cola, con el detalle de cada producto y cantidad.
+                      <br />— Cada producto tiene un <strong>checkbox</strong>: vas tildando a medida que lo ponés en la caja.
+                      <br />— El botón <strong>Despachar</strong> se habilita solo cuando todos los productos están tildados — evita errores.
+                      <br />— Al despachar, el pedido pasa al Panel del Repartidor.
+                      <br />— También podés dejar notas para el repartidor usando el ícono 💬.
+                    </p>
+
+                    <h3>🚚 12. Reparto (Panel del Repartidor)</h3>
+                    <p>
+                      Panel pensado para usar desde el celular durante el reparto.
+                      <br />— Muestra la <strong>hoja de ruta del día</strong>: todos los pedidos despachados con dirección, teléfono y detalle de productos.
+                      <br />— El botón <strong>Ver mapa</strong> abre Google Maps directo en la dirección del cliente.
+                      <br />— Al entregar, presionás <strong>Entregado</strong>, podés agregar una observación (ej: "dejé con el vecino") y confirmás.
+                      <br />— El botón <strong>Ver historial</strong> muestra las últimas entregas realizadas.
+                    </p>
+
+                    <h3>🌐 13. Portal de Clientes (PWA)</h3>
+                    <p>
+                      Cada cliente tiene un <strong>link único</strong> para hacer pedidos desde su celular, sin necesidad de llamar ni mandar WhatsApp.
+                      <br />— Muestra el catálogo con stock real y sus precios personalizados.
+                      <br />— El cliente arma su carrito y confirma — el pedido llega directo a tu panel de Recepción.
+                      <br />— Es una <strong>PWA</strong> (Progressive Web App): el cliente puede instalarla en su celular como si fuera una app, con ícono en la pantalla de inicio.
+                      <br /><em>Para compartirle el link a un cliente: entrá a su perfil en Clientes y copiá el link de portal.</em>
+                    </p>
+
+                    <h3>🤖 14. Agi — Asistente IA</h3>
+                    <p>
+                      Agi es tu asistente de inteligencia artificial, disponible en el botón flotante de la esquina inferior derecha.
+                      <br />— Podés hacerle preguntas en lenguaje natural: <em>"¿Cuánto vendimos este mes?"</em>, <em>"¿Qué productos tienen stock bajo?"</em>, <em>"¿Cuál fue la venta más grande?"</em>
+                      <br />— Tiene acceso a todos los datos del sistema: ventas, compras, stock, clientes y gastos.
+                      <br />— No reemplaza los módulos, pero es útil para consultas rápidas sin tener que navegar entre pantallas.
+                    </p>
+
                   </div>
                   <div className="modal-actions" style={{ justifyContent: 'center', marginTop: '2rem' }}>
                     <button className="primary-btn" onClick={() => setIsGuideOpen(false)}>
