@@ -20,7 +20,7 @@ const Login = ({ onGoToStorefront }) => {
         if (error) {
             addToast('Acceso denegado: ' + error.message, 'error');
         } else {
-            addToast('¡Bienvenida Sabri! Preparando panel...', 'success');
+            addToast('¡Bienvenida! Preparando panel...', 'success');
         }
         setLoading(false);
     };
@@ -36,9 +36,9 @@ const Login = ({ onGoToStorefront }) => {
                 <div className="login-card premium-glass">
                     <div className="brand-header">
                         <div className="logo-ring">
-                            <span className="logo-letter">S</span>
+                            <span className="logo-letter">🌿</span>
                         </div>
-                        <h1 className="brand-title">Sistema Demo</h1>
+                        <h1 className="brand-title">AGIAPURR Gestión</h1>
                         <p className="brand-subtitle">Panel de Control</p>
                     </div>
 

@@ -210,7 +210,13 @@ function AppContent({ currentView, setCurrentView }) {
           <nav className={`sidebar glass-card ${isSidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
               <div className="logo">
-                <h2>Sistema Demo</h2>
+                <div className="brand-mark">
+                  <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>🌿</span>
+                  <div>
+                    <h2>AGIAPURR</h2>
+                    <span className="brand-sub">Distribuidora</span>
+                  </div>
+                </div>
               </div>
               <button className="mobile-close-btn" onClick={closeSidebar}>
                 <X size={24} />
@@ -233,7 +239,7 @@ function AppContent({ currentView, setCurrentView }) {
             <div className="nav-links" style={{ marginTop: 'auto' }}>
               <button
                 className="nav-item"
-                style={{ color: '#f97316', background: 'rgba(249,115,22,0.1)' }}
+                style={{ color: 'var(--accent)', background: 'rgba(201,168,76,0.1)' }}
                 onClick={() => {
                   setCurrentView('storefront');
                   closeSidebar();
@@ -257,9 +263,9 @@ function AppContent({ currentView, setCurrentView }) {
 
             {/* User Section */}
             <div className="user-section">
-              <div className="user-avatar">S</div>
+              <div className="user-avatar">G</div>
               <div className="user-info">
-                <span className="user-name">Sabrina</span>
+                <span className="user-name">Gladys</span>
                 <button
                   onClick={async () => {
                     await logout();
@@ -317,7 +323,7 @@ function AppContent({ currentView, setCurrentView }) {
               <div className="modal-overlay" onClick={() => setIsGuideOpen(false)}>
                 <div className="modal-content guide-modal" onClick={e => e.stopPropagation()}>
                   <div className="modal-header">
-                    <h2>Guía de Uso: Catálogo B2B</h2>
+                    <h2>Guía de Uso: AGIAPURR Gestión</h2>
                     <button className="icon-btn delete" onClick={() => setIsGuideOpen(false)}>
                       <X size={20} />
                     </button>
@@ -325,36 +331,36 @@ function AppContent({ currentView, setCurrentView }) {
                   <div className="modal-body user-guide">
                     <h3>1. Compras (Ingreso de Mercadería)</h3>
                     <p>
-                      Todo empieza aquí. Cada vez que compras carne al frigorífico, regístralo en la pestaña <strong>Compras</strong>.
-                      Al guardar una compra, el sistema suma automáticamente esos kilos a tu <strong>Stock</strong>. Si es un corte nuevo, te pedirá que lo crees primero.
+                      Todo empieza aquí. Cada vez que comprás mercadería al proveedor, registralo en <strong>Compras</strong>.
+                      El sistema suma automáticamente las unidades a tu <strong>Stock</strong>. Si es un producto nuevo, te pedirá que lo crees primero en Productos.
                     </p>
 
                     <h3>2. Ventas (Salida de Mercadería)</h3>
                     <p>
-                      Cuando vendes a un cliente, ve a <strong>Ventas</strong>. Al registrar la venta, el sistema restará esos kilos de tu <strong>Stock</strong> disponible.
-                      Además, el sistema es inteligente (usa método FIFO): siempre descontará primero los kilos de la compra más antigua que tengas ingresada.
+                      Cuando vendés a un cliente, ve a <strong>Ventas</strong>. Al registrar la venta, el sistema descuenta las unidades del <strong>Stock</strong> disponible y calcula la ganancia real automáticamente.
+                      Usa método FIFO: siempre descuenta primero el lote más antiguo.
                     </p>
 
-                    <h3>3. Distribución (Control de Carniceros)</h3>
+                    <h3>3. Distribución (Entrega Interna)</h3>
                     <p>
-                      Si le entregas carne a tus empleados/carniceros para que la trabajen o vendan en mostrador, anótalo en <strong>Distribución</strong>.
-                      Esto te permite saber exactamente cuánta mercadería (y de qué valor) tiene cada empleado bajo su responsabilidad en todo momento.
+                      Si entregás mercadería a empleados o repartidores para que trabajen con ella, registralo en <strong>Distribución</strong>.
+                      Podés saber en todo momento cuánta mercadería tiene cada persona bajo su responsabilidad.
                     </p>
 
                     <h3>4. Resumen (Tablero Principal)</h3>
                     <p>
-                      El <strong>Resumen</strong> es tu centro de control. Aquí puedes ver de un vistazo tus ganancias, el valor total del stock que tienes inmovilizado, tus ventas del día, los gastos operativos (pestaña Gastos) y los productos que más salen.
+                      El <strong>Resumen</strong> es tu centro de control. De un vistazo ves ingresos, ganancia bruta, gastos del mes, productos más vendidos y el estado del stock. Agi, tu asistente IA, está disponible en la esquina inferior derecha.
                     </p>
 
-                    <h3>5. Catálogo Público (Landing Page B2B)</h3>
+                    <h3>5. Catálogo B2B (Portal para Clientes)</h3>
                     <p>
-                      Es la vidriera para tus clientes mayoristas. Muestra tu stock real.
+                      Es la vidriera para tus clientes mayoristas. Muestra stock real y precios actualizados.
                       <br />
-                      - <strong>Precios:</strong> Si vas a <i>Stock</i> y dejas el "Precio Catálogo" vacío, se mostrará al cliente tu Costo Promedio. Si escribes un número, se mostrará ese precio manual.
+                      - <strong>Precios:</strong> Se calculan automáticamente desde el costo + margen configurado en Productos.
                       <br />
-                      - <strong>Ocultar:</strong> Desde <i>Stock</i> también puedes ocultar cortes temporalmente sin borrarlos.
+                      - <strong>Pedidos:</strong> Tus clientes agregan productos al carrito y confirman — el pedido llega directo al panel de Recepción.
                       <br />
-                      - <strong>Pedidos:</strong> Tus clientes agregarán kilos al carrito y presionarán "Enviar Pedido", lo cual te llegará directamente a tu WhatsApp con todo detallado.
+                      - <strong>PWA:</strong> Tus clientes pueden instalar el catálogo como app en su celular.
                     </p>
                   </div>
                   <div className="modal-actions" style={{ justifyContent: 'center', marginTop: '2rem' }}>
@@ -387,7 +393,7 @@ function AppContent({ currentView, setCurrentView }) {
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle at center, rgba(249, 115, 22, 0.03) 0%, transparent 50%);
+            background: radial-gradient(circle at center, rgba(59, 122, 87, 0.04) 0%, transparent 50%);
             z-index: 0;
             animation: rotateBackground 60s linear infinite;
             pointer-events: none;
@@ -428,12 +434,82 @@ function AppContent({ currentView, setCurrentView }) {
             cursor: pointer;
           }
 
+          .brand-mark {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+          }
+
           .logo h2 {
-            color: var(--primary);
-            font-size: 1.5rem;
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--sidebar-text);
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            line-height: 1.1;
+            -webkit-text-fill-color: var(--sidebar-text);
+            background: none;
+          }
+
+          .brand-sub {
+            display: block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--sidebar-accent);
+          }
+
+          /* Dark sidebar override */
+          .sidebar.glass-card {
+            background: var(--sidebar-bg) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(255,255,255,0.06) !important;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18) !important;
+          }
+
+          .sidebar .nav-item {
+            color: var(--sidebar-muted);
+          }
+
+          .sidebar .nav-item:hover {
+            background: rgba(201, 168, 76, 0.12);
+            color: var(--sidebar-accent);
+          }
+
+          .sidebar .nav-item.active {
+            background: rgba(201, 168, 76, 0.18);
+            color: var(--sidebar-accent);
+            box-shadow: none;
+            border-left: 3px solid var(--sidebar-accent);
+            padding-left: calc(1rem - 3px);
+          }
+
+          .sidebar .user-section {
+            border-top: 1px solid rgba(255,255,255,0.1);
+          }
+
+          .sidebar .user-name {
+            color: var(--sidebar-text);
+          }
+
+          .sidebar .logout-btn {
+            color: var(--sidebar-muted);
+            font-size: 0.75rem;
+          }
+
+          .sidebar .logout-btn:hover {
+            color: var(--error);
+          }
+
+          .sidebar .studio-copyright,
+          .sidebar .studio-name,
+          .sidebar .studio-tagline {
+            color: rgba(255,255,255,0.35);
+          }
+
+          .sidebar .mobile-close-btn {
+            color: var(--sidebar-muted);
           }
 
           .global-loader {
@@ -449,7 +525,7 @@ function AppContent({ currentView, setCurrentView }) {
           }
           
           .global-loader .spinner {
-            border: 4px solid rgba(249, 115, 22, 0.2);
+            border: 4px solid rgba(59, 122, 87, 0.2);
             border-top: 4px solid var(--primary);
             border-radius: 50%;
             width: 40px;
@@ -487,14 +563,14 @@ function AppContent({ currentView, setCurrentView }) {
           }
 
           .nav-item:hover {
-            background: rgba(249, 115, 22, 0.08);
+            background: rgba(59, 122, 87, 0.08);
             color: var(--primary);
           }
 
           .nav-item.active {
             background: var(--primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 4px 12px rgba(59, 122, 87, 0.3);
           }
 
           .user-section {
@@ -679,7 +755,7 @@ function AppContent({ currentView, setCurrentView }) {
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(59, 122, 87, 0.3);
           }
 
           .primary-btn:hover {

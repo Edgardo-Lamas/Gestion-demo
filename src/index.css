@@ -1,27 +1,23 @@
 :root {
-  --primary: #f97316;
-  /* Orange 500 */
-  --primary-hover: #ea580c;
-  /* Orange 600 */
-  --secondary: #10b981;
-  /* Emerald 500 */
-  --accent: #f59e0b;
-  /* Amber 500 */
-  --background: #f8fafc;
-  /* Slate 50 */
-  --surface: #ffffff;
-  --text: #1e293b;
-  /* Slate 800 */
-  --text-muted: #64748b;
-  /* Slate 500 */
-  --border: #e2e8f0;
-  /* Slate 200 */
+  --primary: #3B7A57;
+  --primary-hover: #2D5E40;
+  --secondary: #8B5E3C;
+  --accent: #C9A84C;
+  --background: #F4F1EB;
+  --surface: #FFFDF8;
+  --text: #1C2B1E;
+  --text-muted: #6B7C6E;
+  --border: #DDD8CE;
   --error: #ef4444;
-  /* Red 500 */
-  --glass: rgba(255, 255, 255, 0.7);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --glass: rgba(255, 255, 255, 0.75);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.06);
   --radius: 12px;
+  /* Sidebar tokens */
+  --sidebar-bg: #1B3A2A;
+  --sidebar-text: #E8F4EF;
+  --sidebar-muted: #8FB8A3;
+  --sidebar-accent: #C9A84C;
 }
 
 * {
@@ -31,7 +27,7 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
   background-color: var(--background);
   color: var(--text);
   line-height: 1.5;
@@ -41,7 +37,7 @@ h1,
 h2,
 h3 {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .glass-card {
