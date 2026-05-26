@@ -253,10 +253,13 @@ async function executeTool(name, input, supabase) {
 
   switch (name) {
     case 'consultar_productos': {
-      const [{ data: productos }, { data: compras }] = await Promise.all([
+      const [resP, resC] = await Promise.all([
         supabase.from('productos').select('id, nombre, unidad, precio_catalogo, margen_ganancia, costo_referencia').order('nombre'),
         supabase.from('compras').select('producto_id, cantidad_disponible')
       ]);
+      console.log('[DIAG] productos:', resP.data?.length ?? 'null', 'error:', resP.error?.message);
+      console.log('[DIAG] compras:', resC.data?.length ?? 'null', 'error:', resC.error?.message);
+      const productos = resP.data; const compras = resC.data;
       const stock = calcularStock(compras);
       return productos?.map(p => ({
         nombre: p.nombre,
