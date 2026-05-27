@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const SYSTEM_URL = window.location.origin;
-const ACCESS_PASSWORD = 'cristoFer_1123';
+const ACCESS_PASSWORD = import.meta.env.VITE_ENTREGA_PASSWORD || 'cristoFer_1123';
 
 const StudioLogo = ({ size = 22 }) => (
   <svg

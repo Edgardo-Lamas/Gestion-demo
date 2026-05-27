@@ -41,9 +41,6 @@ import PedidosProveedores from './components/PedidosProveedores';
 import Products from './components/Products';
 import Entrega from './components/Entrega';
 import Propuesta from './components/Propuesta';
-import ReporteSabri from './components/ReporteSabri';
-import ReporteSabriAdmin from './components/ReporteSabriAdmin';
-import SabriPanel from './components/SabriPanel';
 import AgentChat from './components/AgentChat';
 
 function AppContent({ currentView, setCurrentView }) {
@@ -158,7 +155,7 @@ function AppContent({ currentView, setCurrentView }) {
       case 'distribution': return <RedVendedores />;
       case 'clients': return <ClientProfiles clientes={clientes} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
       case 'products': return <Products productos={productos} compras={compras} ventas={ventas} distribuciones={distribuciones} stock_actual={stock_actual} clientes={clientes} descuentos={descuentos} onUpdate={fetchData} />;
-      case 'sabri-reporte': return <ReporteSabriAdmin distribuciones={distribuciones} productos={productos} />;
+      // sabri-reporte eliminado
       case 'pedidos': return <PedidosRecepcion clientes={clientes} productos={productos} onUpdate={fetchData} />;
       case 'armado': return <PanelArmado onUpdate={fetchData} />;
       case 'reparto': return <PanelRepartidor onUpdate={fetchData} />;
@@ -185,25 +182,7 @@ function AppContent({ currentView, setCurrentView }) {
   ];
 
   return (
-    <>
-      {currentView === 'storefront' ? (
-        <React.Fragment>
-          <B2BStoreFront productos={productos} costoPromedio={costoPromedio} />
-          {/* Un botón temporal para poder volver al admin mientras desarrollamos */}
-          <button
-            onClick={() => setCurrentView('app')}
-            style={{
-              position: 'fixed', bottom: '20px', left: '20px',
-              background: '#0f172a', color: 'white', padding: '10px 15px',
-              borderRadius: '8px', zIndex: 9999, border: 'none', cursor: 'pointer',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-            }}
-          >
-            ← Volver al Admin
-          </button>
-        </React.Fragment>
-      ) : (
-        <div className="app-container">
+    <div className="app-container">
 
           {/* Carga global */}
           {loading && (
@@ -1011,8 +990,6 @@ function AppContent({ currentView, setCurrentView }) {
           }
         `}</style>
         </div>
-      )}
-    </>
   );
 }
 
@@ -1036,17 +1013,18 @@ function AppAuthWrapper() {
     if (view === 'storefront') return 'storefront';
     if (view === 'entrega') return 'entrega';
     if (view === 'propuesta') return 'propuesta';
-    if (view === 'reporte') return 'reporte';
-    if (view === 'sabri') return 'sabri';
     if (view === 'pedido') return 'pedido';
     return 'app';
   });
 
-  // Páginas públicas: no requieren login ni esperar auth
+  // Páginas públicas: no requieren login
   if (currentView === 'entrega') return <Entrega />;
   if (currentView === 'propuesta') return <Propuesta />;
-  if (currentView === 'reporte') return <ReporteSabri />;
-  if (currentView === 'sabri') return <SabriPanel />;
+  if (currentView === 'storefront') return (
+    <React.Fragment>
+      <B2BStoreFront productos={[]} costoPromedio={{}} />
+    </React.Fragment>
+  );
   if (currentView === 'pedido') {
     const params = new URLSearchParams(window.location.search);
     return <PortalPedidos clienteId={params.get('cliente')} />;
@@ -1061,7 +1039,14 @@ function AppAuthWrapper() {
     );
   }
 
-  // Demo: acceso libre sin login
+  // Guard de autenticación
+  if (!user) {
+    return (
+      <Login
+        onGoToStorefront={() => window.location.href = '?view=storefront'}
+      />
+    );
+  }
 
   return (
     <AppContent currentView={currentView} setCurrentView={setCurrentView} />
@@ -1077,16 +1062,27 @@ class ErrorBoundary extends React.Component {
     return { hasError: true, error };
   }
   componentDidCatch(error, info) {
-    console.error("ErrorBoundary caught an error", error, info);
+    // Log interno — no se muestra al usuario
+    console.error('[ErrorBoundary]', error, info);
     this.setState({ info });
   }
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '20px', background: 'white', color: 'red' }}>
-          <h2>Algo salió mal (Error de Aplicación)</h2>
-          <pre>{this.state.error && this.state.error.toString()}</pre>
-          <pre>{this.state.info && this.state.info.componentStack}</pre>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', fontFamily: 'Nunito, system-ui, sans-serif' }}>
+          <div style={{ textAlign: 'center', padding: '2rem', maxWidth: 420 }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+            <h2 style={{ color: 'white', fontWeight: 800, marginBottom: '0.5rem' }}>Algo salió mal</h2>
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              Ocurrió un error inesperado. Por favor recargá la página. Si el problema persiste, contactá al soporte.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              style={{ background: '#3B7A57', color: 'white', border: 'none', padding: '0.75rem 1.75rem', borderRadius: '10px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+            >
+              Recargar
+            </button>
+          </div>
         </div>
       );
     }
