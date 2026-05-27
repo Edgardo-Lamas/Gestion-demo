@@ -186,7 +186,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                     transition: all 0.2s;
                     color: var(--text-muted);
                 }
-                .prod-action-btn:hover { background: rgba(249,115,22,0.1); color: var(--primary); }
+                .prod-action-btn:hover { background: rgba(59,122,87,0.1); color: var(--primary); }
                 .prod-action-btn.danger:hover { background: rgba(239,68,68,0.1); color: var(--error); }
                 .prod-form-grid {
                     display: grid;
@@ -222,10 +222,10 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                             <thead>
                                 <tr>
                                     <th>Producto</th>
-                                    <th>Costo referencia ($/kg)</th>
-                                    <th>Precio catálogo B2B ($/kg)</th>
+                                    <th>Costo referencia ($)</th>
+                                    <th>Precio catálogo B2B ($)</th>
                                     <th>Stock actual</th>
-                                    <th style={{ textAlign: 'center' }}>Sabri</th>
+                                    <th style={{ textAlign: 'center' }}>B2B</th>
                                     <th style={{ width: '90px', textAlign: 'center' }}>Acciones</th>
                                 </tr>
                             </thead>
@@ -264,7 +264,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                             </td>
                                             <td style={{ textAlign: 'center' }}>
                                                 {p.para_sabri
-                                                    ? <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '0.2rem 0.6rem', borderRadius: '10px', border: '1px solid rgba(16,185,129,0.25)' }}>✓ Sabri</span>
+                                                    ? <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '0.2rem 0.6rem', borderRadius: '10px', border: '1px solid rgba(16,185,129,0.25)' }}>✓ B2B</span>
                                                     : <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>—</span>
                                                 }
                                             </td>
@@ -313,7 +313,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                         type="text"
                                         value={nuevoNombre}
                                         onChange={e => setNuevoNombre(e.target.value)}
-                                        placeholder="Ej: Lomo, Costilla, Paleta..."
+                                        placeholder="Ej: Yerba mate, Miel, Aceite esencial..."
                                         required
                                         autoFocus
                                         style={fieldStyle}
@@ -321,7 +321,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                 </div>
                                 <div className="prod-form-grid">
                                     <div>
-                                        <label style={labelStyle}>Costo referencia ($/kg)</label>
+                                        <label style={labelStyle}>Costo referencia ($)</label>
                                         <input
                                             type="number"
                                             min="0"
@@ -336,7 +336,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                         </p>
                                     </div>
                                     <div>
-                                        <label style={labelStyle}>Precio catálogo B2B ($/kg)</label>
+                                        <label style={labelStyle}>Precio catálogo B2B ($)</label>
                                         <input
                                             type="number"
                                             min="0"
@@ -349,7 +349,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                     </div>
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Flete Sabri ($/kg)</label>
+                                    <label style={labelStyle}>Flete distribución ($)</label>
                                     <input
                                         type="number"
                                         min="0"
@@ -371,10 +371,10 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                         style={{ width: '16px', height: '16px', accentColor: '#10b981', cursor: 'pointer' }}
                                     />
                                     <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}>
-                                        Producto de Sabri
+                                        Disponible en catálogo
                                     </span>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                        (aparece en su panel de ventas)
+                                        (aparece en catálogo B2B)
                                     </span>
                                 </label>
                             </div>
@@ -416,7 +416,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                 </div>
                                 <div className="prod-form-grid">
                                     <div>
-                                        <label style={labelStyle}>Costo referencia ($/kg)</label>
+                                        <label style={labelStyle}>Costo referencia ($)</label>
                                         <input
                                             type="number"
                                             min="0"
@@ -431,7 +431,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                         </p>
                                     </div>
                                     <div>
-                                        <label style={labelStyle}>Precio catálogo B2B ($/kg)</label>
+                                        <label style={labelStyle}>Precio catálogo B2B ($)</label>
                                         <input
                                             type="number"
                                             min="0"
@@ -444,7 +444,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                     </div>
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Flete Sabri ($/kg)</label>
+                                    <label style={labelStyle}>Flete distribución ($)</label>
                                     <input
                                         type="number"
                                         min="0"
@@ -466,10 +466,10 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                         style={{ width: '16px', height: '16px', accentColor: '#10b981', cursor: 'pointer' }}
                                     />
                                     <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}>
-                                        Producto de Sabri
+                                        Disponible en catálogo
                                     </span>
                                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                        (aparece en su panel de ventas)
+                                        (aparece en catálogo B2B)
                                     </span>
                                 </label>
 

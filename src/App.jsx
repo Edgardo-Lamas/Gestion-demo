@@ -28,7 +28,7 @@ import Purchases from './components/Purchases';
 import Sales from './components/Sales';
 import Expenses from './components/Expenses';
 import Inventory from './components/Inventory';
-import MeatDistribution from './components/MeatDistribution';
+import RedVendedores from './components/RedVendedores';
 import B2BStoreFront from './components/B2BStoreFront';
 
 import ClientProfiles from './components/ClientProfiles';
@@ -40,6 +40,7 @@ import CajaDiaria from './components/CajaDiaria';
 import PedidosProveedores from './components/PedidosProveedores';
 import Products from './components/Products';
 import Entrega from './components/Entrega';
+import Propuesta from './components/Propuesta';
 import ReporteSabri from './components/ReporteSabri';
 import ReporteSabriAdmin from './components/ReporteSabriAdmin';
 import SabriPanel from './components/SabriPanel';
@@ -154,7 +155,7 @@ function AppContent({ currentView, setCurrentView }) {
       case 'sales': return <Sales productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} clientes={clientes} descuentos={descuentos} onUpdate={fetchData} />;
       case 'expenses': return <Expenses gastos={gastos} onUpdate={fetchData} />;
       case 'inventory': return <Inventory productos={productos} stock_actual={stock_actual} compras={compras} onUpdate={fetchData} />;
-      case 'distribution': return <MeatDistribution distribuciones={distribuciones} productos={productos} costoPromedio={costoPromedio} ventas={ventas} compras={compras} onUpdate={fetchData} />;
+      case 'distribution': return <RedVendedores />;
       case 'clients': return <ClientProfiles clientes={clientes} productos={productos} compras={compras} ventas={ventas} stock_actual={stock_actual} costoPromedio={costoPromedio} onUpdate={fetchData} />;
       case 'products': return <Products productos={productos} compras={compras} ventas={ventas} distribuciones={distribuciones} stock_actual={stock_actual} clientes={clientes} descuentos={descuentos} onUpdate={fetchData} />;
       case 'sabri-reporte': return <ReporteSabriAdmin distribuciones={distribuciones} productos={productos} />;
@@ -173,7 +174,7 @@ function AppContent({ currentView, setCurrentView }) {
     { id: 'sales', label: 'Ventas', icon: BadgeDollarSign },
     { id: 'expenses', label: 'Gastos', icon: Receipt },
     { id: 'inventory', label: 'Stock', icon: Package },
-    { id: 'distribution', label: 'Distribución', icon: Scale },
+    { id: 'distribution', label: 'Red de Ventas', icon: Users },
     { id: 'clients', label: 'Clientes', icon: Users },
     { id: 'products', label: 'Productos', icon: Boxes },
     { id: 'caja', label: 'Caja', icon: Wallet },
@@ -294,6 +295,7 @@ function AppContent({ currentView, setCurrentView }) {
                   <svg viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="0" y="0" width="3.5" height="22" rx="1.75" fill="#c9a227"/>
                     <rect x="0" y="0" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
+                    <rect x="0" y="9.25" width="8" height="3.5" rx="1.75" fill="#c9a227"/>
                     <rect x="0" y="18.5" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
                   </svg>
                 </div>
@@ -1033,6 +1035,7 @@ function AppAuthWrapper() {
     const view = params.get('view');
     if (view === 'storefront') return 'storefront';
     if (view === 'entrega') return 'entrega';
+    if (view === 'propuesta') return 'propuesta';
     if (view === 'reporte') return 'reporte';
     if (view === 'sabri') return 'sabri';
     if (view === 'pedido') return 'pedido';
@@ -1041,6 +1044,7 @@ function AppAuthWrapper() {
 
   // Páginas públicas: no requieren login ni esperar auth
   if (currentView === 'entrega') return <Entrega />;
+  if (currentView === 'propuesta') return <Propuesta />;
   if (currentView === 'reporte') return <ReporteSabri />;
   if (currentView === 'sabri') return <SabriPanel />;
   if (currentView === 'pedido') {

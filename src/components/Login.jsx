@@ -91,6 +91,38 @@ const Login = ({ onGoToStorefront }) => {
                             </span>
                             <span className="link-text">Ir al Catálogo de Clientes</span>
                         </button>
+
+                        <a href="?view=propuesta" className="storefront-link" style={{ textDecoration: 'none', marginTop: '0.5rem' }}>
+                            <span className="icon-circle">
+                                <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                            </span>
+                            <span className="link-text">Ver propuesta del sistema</span>
+                        </a>
+
+                        <a
+                            href="https://studio-lamas.vercel.app"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
+                                marginTop: '1.5rem', opacity: 0.4, textDecoration: 'none',
+                                transition: 'opacity 0.2s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+                            onMouseLeave={e => e.currentTarget.style.opacity = '0.4'}
+                        >
+                            <svg viewBox="0 0 14 22" fill="none" width="10" height="16" aria-hidden="true">
+                                <rect x="0" y="0" width="3.5" height="22" rx="1.75" fill="#c9a227"/>
+                                <rect x="0" y="0" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
+                                <rect x="0" y="9.25" width="8" height="3.5" rx="1.75" fill="#c9a227"/>
+                                <rect x="0" y="18.5" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
+                            </svg>
+                            <span style={{ fontSize: '0.62rem', color: 'white', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                                Studio Lamas
+                            </span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -121,7 +153,7 @@ const Login = ({ onGoToStorefront }) => {
                 .shape-1 {
                     width: 400px;
                     height: 400px;
-                    background: radial-gradient(circle, #ea580c, #f97316); /* Naranja fuerte/Sabri */
+                    background: radial-gradient(circle, #2d6148, #3B7A57); /* Verde forestal AGIAPURR */
                     top: -100px;
                     right: -50px;
                 }
@@ -129,7 +161,7 @@ const Login = ({ onGoToStorefront }) => {
                 .shape-2 {
                     width: 500px;
                     height: 500px;
-                    background: radial-gradient(circle, #b91c1c, #991b1b); /* Rojo profundo carnicero */
+                    background: radial-gradient(circle, #6b4226, #8B5E3C); /* Madera AGIAPURR */
                     bottom: -150px;
                     left: -150px;
                     animation-duration: 25s;
@@ -195,11 +227,11 @@ const Login = ({ onGoToStorefront }) => {
                     height: 72px;
                     margin: 0 auto 1rem auto;
                     border-radius: 50%;
-                    background: linear-gradient(135deg, #f97316, #ea580c);
+                    background: linear-gradient(135deg, #3B7A57, #2d6148);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: 0 0 20px rgba(249, 115, 22, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                    box-shadow: 0 0 20px rgba(59, 122, 87, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3);
                     border: 2px solid rgba(255, 255, 255, 0.1);
                 }
 
@@ -271,13 +303,13 @@ const Login = ({ onGoToStorefront }) => {
 
                 .input-box input:focus {
                     background: rgba(15, 23, 42, 0.6);
-                    border-color: #f97316;
-                    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+                    border-color: #3B7A57;
+                    box-shadow: 0 0 0 4px rgba(59, 122, 87, 0.15);
                 }
 
                 .input-box input:focus + .input-icon,
                 .input-box input:not(:placeholder-shown) ~ .input-icon {
-                    color: #f97316;
+                    color: #3B7A57;
                 }
 
                 /* --- BOTÓN PRINCIPAL --- */
@@ -285,7 +317,7 @@ const Login = ({ onGoToStorefront }) => {
                     margin-top: 0.5rem;
                     width: 100%;
                     padding: 1.15rem;
-                    background: linear-gradient(to right, #f97316, #ea580c);
+                    background: linear-gradient(to right, #3B7A57, #2d6148);
                     border: none;
                     border-radius: 16px;
                     color: white;
@@ -297,14 +329,14 @@ const Login = ({ onGoToStorefront }) => {
                     justify-content: center;
                     gap: 0.75rem;
                     transition: all 0.3s;
-                    box-shadow: 0 8px 20px -6px rgba(249, 115, 22, 0.5);
+                    box-shadow: 0 8px 20px -6px rgba(59, 122, 87, 0.5);
                     position: relative;
                     overflow: hidden;
                 }
 
                 .submit-btn:hover:not(:disabled) {
                     transform: translateY(-2px);
-                    box-shadow: 0 12px 25px -6px rgba(249, 115, 22, 0.6);
+                    box-shadow: 0 12px 25px -6px rgba(59, 122, 87, 0.6);
                 }
 
                 .submit-btn:active:not(:disabled) {
@@ -392,8 +424,8 @@ const Login = ({ onGoToStorefront }) => {
                 }
 
                 .storefront-link:hover .icon-circle {
-                    background: rgba(249, 115, 22, 0.2);
-                    color: #f97316;
+                    background: rgba(59, 122, 87, 0.2);
+                    color: #3B7A57;
                 }
 
                 .storefront-link:hover .link-text {

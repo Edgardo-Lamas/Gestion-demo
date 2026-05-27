@@ -19,9 +19,9 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
       return {
         ...p,
         precio_b2b_calculado: precio_sugerido, // Guardamos este valor final para usar en la vista
-        descripcion: p.descripcion || 'Corte de primera calidad, ideal para venta en mostrador o gastronomía.',
-        categoria: p.categoria || 'Vacuno',
-        imagen_url: p.imagen_url || 'https://images.unsplash.com/photo-1607623814075-e51df1bd682f?auto=format&fit=crop&q=80&w=800'
+        descripcion: p.descripcion || 'Producto natural artesanal, ideal para reventa en dietéticas y almacenes.',
+        categoria: (['Vacuno', 'Bovino', 'Porcino', 'Aviar', 'Corte'].includes(p.categoria) ? 'Natural' : p.categoria) || 'Natural',
+        imagen_url: p.imagen_url || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&q=80&w=800'
       };
     }).filter(p => p.mostrar_en_catalogo !== false);
   }, [productos, costoPromedio]);
@@ -63,15 +63,15 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
   const handleCheckout = () => {
     if (cart.length === 0) return;
 
-    let message = `* NUEVO PEDIDO MAYORISTA - GESTIÓN SABRI * 🍖\n\n`;
-    message += `Hola Sabri, te paso este pedido web: \n\n`;
+    let message = `* NUEVO PEDIDO MAYORISTA - AGIAPURR * 🌿\n\n`;
+    message += `Hola Gladis, te paso este pedido web: \n\n`;
 
     cart.forEach(item => {
       message += `▪️ * ${item.nombre}*\n`;
       if (item.precio_b2b_calculado > 0) {
-        message += `   ${item.quantity} kg x ${formatPrice(item.precio_b2b_calculado)} = * ${formatPrice(item.precio_b2b_calculado * item.quantity)}*\n`;
+        message += `   ${item.quantity} unid. x ${formatPrice(item.precio_b2b_calculado)} = * ${formatPrice(item.precio_b2b_calculado * item.quantity)}*\n`;
       } else {
-        message += `   ${item.quantity} kg(A cotizar) \n`;
+        message += `   ${item.quantity} unid. (A cotizar)\n`;
       }
     });
 
@@ -90,7 +90,7 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
       <nav className="store-nav glass-card">
         <div className="nav-container">
           <div className="logo-section">
-            <h1 className="logo-text">Sabri <span className="logo-accent">Catálogo B2B</span></h1>
+            <h1 className="logo-text">AGIAPURR <span className="logo-accent">Catálogo B2B</span></h1>
           </div>
           <div className="nav-actions">
             <button className="cart-btn" onClick={() => setIsCartOpen(true)}>
@@ -104,9 +104,9 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
       {/* Hero Section */}
       <header className="hero-section">
         <div className="hero-content">
-          <span className="hero-badge"><Star size={16} /> Calidad Exportación</span>
-          <h2 className="hero-title">Abastecemos tu negocio con la mejor carne</h2>
-          <p className="hero-subtitle">Precios mayoristas exclusivos para carnicerías y gastronomía. Hacé tu pedido online y coordinamos entrega rápida.</p>
+          <span className="hero-badge"><Star size={16} /> Origen Misionero</span>
+          <h2 className="hero-title">Abastecemos tu negocio con los mejores productos naturales</h2>
+          <p className="hero-subtitle">Precios mayoristas exclusivos para revendedores y distribuidores. Hacé tu pedido online y coordinamos entrega rápida.</p>
           <div className="hero-features">
             <div className="feature"><TrendingUp size={20} /> Precios Directos</div>
             <div className="feature"><React.Fragment><PackageOpen size={20} /></React.Fragment> Stock Constante</div>
@@ -119,12 +119,12 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
       {/* Catalog Section */}
       <main className="catalog-container">
         <div className="catalog-header">
-          <h3>Cortes Disponibles</h3>
+          <h3>Productos Disponibles</h3>
           <div className="search-bar">
             <Search size={20} className="search-icon" />
             <input
               type="text"
-              placeholder="Buscar corte..."
+              placeholder="Buscar producto..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -153,7 +153,7 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
                       {product.precio_b2b_calculado > 0 ? (
                         <>
                           <span className="price-value">{formatPrice(product.precio_b2b_calculado)}</span>
-                          <span className="price-unit">por kg</span>
+                          <span className="price-unit">por unidad</span>
                         </>
                       ) : (
                         <span className="price-value text-muted">A cotizar</span>
@@ -174,7 +174,7 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
 
         {/* Promotional Flyer */}
         <div className="promo-flyer">
-          <img src={`${import.meta.env.BASE_URL}hero-bg1.png`} alt="Flyer Promocional Sabri" />
+          <img src={`${import.meta.env.BASE_URL}hero-bg1.png`} alt="Flyer Promocional AGIAPURR" />
         </div>
       </main>
 
@@ -275,7 +275,7 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
         }
 
         .logo-accent {
-          color: #f97316;
+          color: #3B7A57;
         }
 
         .cart-btn {
@@ -312,10 +312,10 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
 
         .hero-section {
           position: relative;
-          background: #1e293b; /* Fallback */
+          background: #0f2218;
           background-image: url('${import.meta.env.BASE_URL}hero-bg.png');
           background-size: cover;
-          background-position: center;
+          background-position: center 40%;
           padding: 5rem 2rem;
           color: white;
           text-align: center;
@@ -325,7 +325,7 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
         .hero-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(to right, rgba(15,23,42,0.7), rgba(15,23,42,0.3));
+          background: linear-gradient(to bottom, rgba(10,28,18,0.55) 0%, rgba(10,28,18,0.72) 100%);
           z-index: 1;
         }
 
@@ -341,9 +341,9 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
         }
 
         .hero-badge {
-          background: rgba(249, 115, 22, 0.2);
-          border: 1px solid rgba(249,115,22,0.5);
-          color: #fdba74;
+          background: rgba(59, 122, 87, 0.2);
+          border: 1px solid rgba(59,122,87,0.5);
+          color: #C9A84C;
           padding: 0.5rem 1rem;
           border-radius: 20px;
           font-size: 0.85rem;
@@ -483,7 +483,7 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
         .category-tag {
           font-size: 0.75rem;
           font-weight: 600;
-          color: #f97316;
+          color: #3B7A57;
           text-transform: uppercase;
           letter-spacing: 0.5px;
           margin-bottom: 0.5rem;
@@ -537,7 +537,7 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
         .add-btn {
           background: #f8fafc;
           border: 1px solid #e2e8f0;
-          color: #f97316;
+          color: #3B7A57;
           padding: 0.5rem 1rem;
           height: 44px;
           border-radius: 12px;
@@ -550,9 +550,9 @@ const B2BStoreFront = ({ productos, costoPromedio }) => {
         }
 
         .add-btn:hover:not(:disabled) {
-          background: #f97316;
+          background: #3B7A57;
           color: white;
-          border-color: #f97316;
+          border-color: #3B7A57;
         }
 
         .add-btn:disabled {

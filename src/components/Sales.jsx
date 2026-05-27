@@ -706,13 +706,13 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                     gap: 0.5rem;
                     cursor: pointer;
                     transition: all 0.2s;
-                    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+                    box-shadow: 0 4px 6px -1px rgba(59, 122, 87, 0.3);
                 }
 
                 .primary-btn:hover {
                     background: var(--primary-hover);
                     transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.4);
+                    box-shadow: 0 10px 15px -3px rgba(59, 122, 87, 0.4);
                 }
 
                 .pulse {
@@ -720,9 +720,9 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                 }
 
                 @keyframes pulse-shadow {
-                    0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
-                    70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+                    0% { box-shadow: 0 0 0 0 rgba(59, 122, 87, 0.4); }
+                    70% { box-shadow: 0 0 0 10px rgba(59, 122, 87, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(59, 122, 87, 0); }
                 }
 
                 .secondary-btn {
@@ -775,9 +775,9 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
 
                 .cliente-badge {
                     display: inline-block;
-                    background: rgba(249, 115, 22, 0.08);
+                    background: rgba(59, 122, 87, 0.08);
                     color: var(--primary);
-                    border: 1px solid rgba(249, 115, 22, 0.2);
+                    border: 1px solid rgba(59, 122, 87, 0.2);
                     padding: 0.2rem 0.6rem;
                     border-radius: 20px;
                     font-size: 0.8rem;
@@ -919,8 +919,8 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
 
                 /* Cost Context Panel */
                 .cost-context-panel {
-                    background: linear-gradient(135deg, rgba(249, 115, 22, 0.04), rgba(59, 130, 246, 0.04));
-                    border: 1px solid rgba(249, 115, 22, 0.15);
+                    background: linear-gradient(135deg, rgba(59, 122, 87, 0.04), rgba(59, 130, 246, 0.04));
+                    border: 1px solid rgba(59, 122, 87, 0.15);
                     border-radius: 12px;
                     padding: 1rem;
                     animation: fadeIn 0.3s ease;
@@ -935,7 +935,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                     color: var(--primary);
                     margin-bottom: 0.75rem;
                     padding-bottom: 0.5rem;
-                    border-bottom: 1px solid rgba(249, 115, 22, 0.1);
+                    border-bottom: 1px solid rgba(59, 122, 87, 0.1);
                 }
 
                 .context-metrics {
@@ -957,7 +957,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
 
                 .context-metric.highlight {
                     border-left-color: var(--primary);
-                    background: rgba(249, 115, 22, 0.06);
+                    background: rgba(59, 122, 87, 0.06);
                 }
 
                 .metric-label {
@@ -981,7 +981,7 @@ const Sales = ({ productos, compras, ventas, stock_actual, costoPromedio, client
                 .context-lotes {
                     margin-top: 0.5rem;
                     padding-top: 0.5rem;
-                    border-top: 1px dashed rgba(249, 115, 22, 0.15);
+                    border-top: 1px dashed rgba(59, 122, 87, 0.15);
                 }
 
                 .lotes-title {

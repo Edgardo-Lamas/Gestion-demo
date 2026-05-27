@@ -13,6 +13,7 @@ const StudioLogo = ({ size = 22 }) => (
   >
     <rect x="0" y="0" width="3.5" height="22" rx="1.75" fill="#c9a227" />
     <rect x="0" y="0" width="11" height="3.5" rx="1.75" fill="#c9a227" />
+    <rect x="0" y="9.25" width="8" height="3.5" rx="1.75" fill="#c9a227" />
     <rect x="0" y="18.5" width="11" height="3.5" rx="1.75" fill="#c9a227" />
   </svg>
 );
@@ -23,7 +24,7 @@ const modules = [
   { icon: '💰', name: 'Ventas', desc: 'Registro de ventas con descuento FIFO' },
   { icon: '🧾', name: 'Gastos', desc: 'Control de gastos operativos' },
   { icon: '📦', name: 'Stock', desc: 'Inventario actualizado automáticamente' },
-  { icon: '⚖️', name: 'Distribución', desc: 'Control de carne en manos de empleados' },
+  { icon: '🚚', name: 'Distribución', desc: 'Control de entregas y reparto a clientes' },
   { icon: '👥', name: 'Clientes', desc: 'Perfiles con precios personalizados' },
   { icon: '🌐', name: 'Catálogo Público', desc: 'Vidriera B2B para pedidos mayoristas' },
 ];
@@ -37,7 +38,7 @@ const flows = [
   {
     step: '02',
     title: 'Registrar una venta',
-    desc: 'Ir a Ventas → Nueva Venta → elegir producto, kg vendidos y precio. El sistema descuenta del stock usando el método FIFO (primero entrado, primero salido).',
+    desc: 'Ir a Ventas → Nueva Venta → elegir producto, cantidad vendida y precio. El sistema descuenta del stock usando el método FIFO (primero entrado, primero salido).',
   },
   {
     step: '03',
@@ -46,8 +47,8 @@ const flows = [
   },
   {
     step: '04',
-    title: 'Cobro rápido vía catálogo',
-    desc: 'El cliente ingresa al Catálogo Público, agrega productos al carrito y presiona "Enviar Pedido". El pedido llega directo a WhatsApp con el detalle completo.',
+    title: 'Gestionar pedidos',
+    desc: 'Los pedidos llegan desde el Portal de Clientes o se cargan manualmente. Pasan por Recepción → Armado → Reparto hasta la confirmación de entrega.',
   },
 ];
 
@@ -85,6 +86,7 @@ export default function Entrega() {
               style={{ width: 28, height: 44, margin: '0 auto 1rem' }}>
               <rect x="0" y="0" width="3.5" height="22" rx="1.75" fill="#c9a227"/>
               <rect x="0" y="0" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
+              <rect x="0" y="9.25" width="8" height="3.5" rx="1.75" fill="#c9a227"/>
               <rect x="0" y="18.5" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
             </svg>
             <h2 style={{ color: 'white', margin: '0 0 0.25rem', fontSize: '1.3rem', fontWeight: 700 }}>
@@ -111,7 +113,7 @@ export default function Entrega() {
             {error && <p style={{ color: '#ef4444', fontSize: '0.8rem', margin: 0 }}>Contraseña incorrecta</p>}
             <button type="submit" style={{
               padding: '0.85rem', borderRadius: '12px', border: 'none',
-              background: 'linear-gradient(to right, #f97316, #ea580c)',
+              background: 'linear-gradient(to right, #3B7A57, #2d6148)',
               color: 'white', fontWeight: 700, fontSize: '1rem', cursor: 'pointer'
             }}>
               Ingresar
@@ -206,9 +208,9 @@ export default function Entrega() {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          background: rgba(249,115,22,0.12);
-          border: 1px solid rgba(249,115,22,0.35);
-          color: #f97316;
+          background: rgba(59,122,87,0.12);
+          border: 1px solid rgba(59,122,87,0.35);
+          color: #3B7A57;
           padding: 0.6rem 1.25rem;
           border-radius: 50px;
           cursor: pointer;
@@ -219,8 +221,8 @@ export default function Entrega() {
         }
 
         .entrega-print-btn:hover {
-          background: rgba(249,115,22,0.22);
-          border-color: #f97316;
+          background: rgba(59,122,87,0.22);
+          border-color: #3B7A57;
         }
 
         /* ── SECTION ── */
@@ -236,7 +238,7 @@ export default function Entrega() {
         .entrega-section-title {
           font-size: 1.1rem;
           font-weight: 700;
-          color: #f97316;
+          color: #C9A84C;
           letter-spacing: 0.01em;
           margin: 0 0 1.25rem;
           display: flex;
@@ -248,7 +250,7 @@ export default function Entrega() {
           content: '';
           flex: 1;
           height: 1px;
-          background: rgba(249,115,22,0.2);
+          background: rgba(59,122,87,0.2);
           border-radius: 2px;
         }
 
@@ -289,7 +291,7 @@ export default function Entrega() {
           display: inline-flex;
           align-items: center;
           gap: 0.4rem;
-          background: #f97316;
+          background: #3B7A57;
           color: white;
           border: none;
           padding: 0.6rem 1.375rem;
@@ -299,20 +301,20 @@ export default function Entrega() {
           cursor: pointer;
           text-decoration: none;
           transition: all 0.2s;
-          box-shadow: 0 4px 14px rgba(249,115,22,0.35);
+          box-shadow: 0 4px 14px rgba(59,122,87,0.35);
           white-space: nowrap;
         }
 
         .entrega-access-btn:hover {
           background: #ea6c0a;
           transform: translateY(-1px);
-          box-shadow: 0 6px 18px rgba(249,115,22,0.45);
+          box-shadow: 0 6px 18px rgba(59,122,87,0.45);
         }
 
         /* ── CREDENCIALES ── */
         .entrega-creds-box {
-          background: rgba(249,115,22,0.06);
-          border: 1.5px solid rgba(249,115,22,0.3);
+          background: rgba(59,122,87,0.06);
+          border: 1.5px solid rgba(59,122,87,0.3);
           border-radius: 12px;
           padding: 1.5rem 1.75rem;
           margin-bottom: 1rem;
@@ -416,9 +418,9 @@ export default function Entrega() {
           content: counter(step-counter);
           min-width: 20px;
           height: 20px;
-          background: rgba(249,115,22,0.15);
-          border: 1px solid rgba(249,115,22,0.3);
-          color: #f97316;
+          background: rgba(59,122,87,0.15);
+          border: 1px solid rgba(59,122,87,0.3);
+          color: #3B7A57;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -445,8 +447,8 @@ export default function Entrega() {
         }
 
         .entrega-module-card:hover {
-          background: rgba(249,115,22,0.05);
-          border-color: rgba(249,115,22,0.2);
+          background: rgba(59,122,87,0.05);
+          border-color: rgba(59,122,87,0.2);
         }
 
         .entrega-module-icon {
@@ -488,13 +490,13 @@ export default function Entrega() {
         }
 
         .entrega-flow-card:hover {
-          border-color: rgba(249,115,22,0.2);
+          border-color: rgba(59,122,87,0.2);
         }
 
         .entrega-flow-step {
           font-size: 1.75rem;
           font-weight: 800;
-          color: rgba(249,115,22,0.25);
+          color: rgba(59,122,87,0.25);
           line-height: 1;
           flex-shrink: 0;
           min-width: 2.5rem;
@@ -540,7 +542,7 @@ export default function Entrega() {
           gap: 0.5rem;
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.1);
-          color: #f97316;
+          color: #3B7A57;
           padding: 0.65rem 1.25rem;
           border-radius: 50px;
           font-size: 0.88rem;
@@ -551,8 +553,8 @@ export default function Entrega() {
         }
 
         .entrega-soporte-email:hover {
-          background: rgba(249,115,22,0.1);
-          border-color: rgba(249,115,22,0.3);
+          background: rgba(59,122,87,0.1);
+          border-color: rgba(59,122,87,0.3);
         }
 
         /* ── FOOTER ── */
@@ -651,10 +653,10 @@ export default function Entrega() {
             box-shadow: none !important;
           }
           .entrega-section-title {
-            color: #ea580c !important;
+            color: #C9A84C !important;
           }
           .entrega-section-title::after {
-            background: #fde8d8 !important;
+            background: rgba(201,168,76,0.15) !important;
           }
           .entrega-doc-title {
             color: #1e293b !important;
@@ -686,8 +688,8 @@ export default function Entrega() {
             opacity: 0.7 !important;
           }
           .entrega-creds-box {
-            background: #fff8f2 !important;
-            border-color: #fbd5b2 !important;
+            background: #f0f7f0 !important;
+            border-color: #c8e0cf !important;
           }
           .entrega-cred-value.mono {
             background: #f1f5f9 !important;
@@ -717,20 +719,20 @@ export default function Entrega() {
             display: none !important;
           }
           .entrega-access-btn {
-            background: #ea580c !important;
+            background: #2d6148 !important;
           }
           .entrega-soporte-email {
-            color: #ea580c !important;
-            background: #fff7f2 !important;
-            border-color: #fbd5b2 !important;
+            color: #2d6148 !important;
+            background: #f0f7f0 !important;
+            border-color: #c8e0cf !important;
           }
           .entrega-flow-step {
-            color: rgba(234,88,12,0.25) !important;
+            color: rgba(59,122,87,0.25) !important;
           }
           .entrega-install-steps li::before {
-            background: #fff7f2 !important;
-            color: #ea580c !important;
-            border-color: #fbd5b2 !important;
+            background: #f0f7f0 !important;
+            color: #2d6148 !important;
+            border-color: #c8e0cf !important;
           }
         }
       `}</style>
@@ -740,13 +742,13 @@ export default function Entrega() {
 
           {/* ── HEADER ── */}
           <header className="entrega-header">
-            <div className="entrega-header-brand">
+            <a href="https://studio-lamas.vercel.app" target="_blank" rel="noopener noreferrer" className="entrega-header-brand" style={{ textDecoration: 'none' }}>
               <StudioLogo size={34} />
               <div className="entrega-header-brand-text">
                 <span className="entrega-brand-name">Studio Lamas</span>
                 <span className="entrega-brand-tagline">Desarrollo Digital</span>
               </div>
-            </div>
+            </a>
 
             <div className="entrega-header-center">
               <h1 className="entrega-doc-title">Documento de Entrega</h1>
@@ -767,11 +769,11 @@ export default function Entrega() {
           {/* ── SISTEMA ENTREGADO ── */}
           <section className="entrega-section">
             <h2 className="entrega-section-title">Sistema entregado</h2>
-            <h3 className="entrega-sistema-nombre">Sistema Demo — Panel de Control</h3>
+            <h3 className="entrega-sistema-nombre">AGIAPURR Gestión — Panel de Control</h3>
             <p className="entrega-sistema-desc">
-              Sistema integral de gestión para carnicería mayorista. Incluye control de stock en tiempo real,
+              Sistema integral de gestión para distribuidora de productos naturales. Incluye control de stock en tiempo real,
               registro de compras y ventas con método FIFO, administración de gastos operativos, gestión de
-              clientes con precios personalizados, distribución de mercadería entre empleados y catálogo
+              clientes con precios personalizados, flujo de pedidos desde recepción hasta entrega y catálogo
               público B2B para pedidos mayoristas vía WhatsApp.
             </p>
             <div className="entrega-url-row">
@@ -798,7 +800,7 @@ export default function Entrega() {
                 </div>
                 <div className="entrega-cred-row">
                   <span className="entrega-cred-label">Email</span>
-                  <span className="entrega-cred-value mono">cristofermartiez@gmail.com</span>
+                  <span className="entrega-cred-value mono">admin@agiapurr.com</span>
                 </div>
                 <div className="entrega-cred-row">
                   <span className="entrega-cred-label">Contraseña</span>
@@ -892,13 +894,13 @@ export default function Entrega() {
 
           {/* ── FOOTER ── */}
           <footer className="entrega-footer">
-            <div className="entrega-footer-brand">
+            <a href="https://studio-lamas.vercel.app" target="_blank" rel="noopener noreferrer" className="entrega-footer-brand" style={{ textDecoration: 'none' }}>
               <StudioLogo size={28} />
               <div className="entrega-footer-brand-text">
                 <span className="entrega-footer-name">Studio Lamas</span>
                 <span className="entrega-footer-tagline">Desarrollo Digital</span>
               </div>
-            </div>
+            </a>
             <p className="entrega-footer-copy">
               © 2026 Edgardo Lamas · Studio Lamas Desarrollo Digital
             </p>

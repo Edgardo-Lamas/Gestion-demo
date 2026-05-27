@@ -317,13 +317,13 @@ const Purchases = ({ productos, compras, onUpdate }) => {
                     gap: 0.5rem;
                     cursor: pointer;
                     transition: all 0.2s;
-                    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+                    box-shadow: 0 4px 6px -1px rgba(59, 122, 87, 0.3);
                 }
 
                 .primary-btn:hover {
                     background: var(--primary-hover);
                     transform: translateY(-2px);
-                    box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.4);
+                    box-shadow: 0 10px 15px -3px rgba(59, 122, 87, 0.4);
                 }
 
                 .secondary-btn {
@@ -351,9 +351,9 @@ const Purchases = ({ productos, compras, onUpdate }) => {
                 }
 
                 @keyframes pulse-shadow {
-                    0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
-                    70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+                    0% { box-shadow: 0 0 0 0 rgba(59, 122, 87, 0.4); }
+                    70% { box-shadow: 0 0 0 10px rgba(59, 122, 87, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(59, 122, 87, 0); }
                 }
 
                 .filter-row { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }

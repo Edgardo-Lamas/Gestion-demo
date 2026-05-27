@@ -155,7 +155,7 @@ export default function MigrationHelper() {
         }}>
             {status === 'needs_migration' && (
                 <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', color: '#f97316' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', color: '#3B7A57' }}>
                         <Database size={20} />
                         <h3 style={{ margin: 0, fontSize: '1.1rem' }}>Sincronización a la Nube</h3>
                     </div>
@@ -165,7 +165,7 @@ export default function MigrationHelper() {
                     <button
                         onClick={runMigration}
                         style={{
-                            width: '100%', background: '#f97316', color: 'white', border: 'none',
+                            width: '100%', background: '#3B7A57', color: 'white', border: 'none',
                             padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex',
                             alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 'bold'
                         }}

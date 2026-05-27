@@ -6,8 +6,9 @@ import { supabase } from '../lib/supabase';
 import { ejecutarAlgoritmoVentaFIFO } from '../utils/fifo';
 
 const CATEGORIAS = [
-    { value: 'carniceria', label: '🥩 Carnicería' },
-    { value: 'restaurante', label: '🍽️ Restaurante' },
+    { value: 'dietetica', label: '🌿 Dietética' },
+    { value: 'almacen', label: '🏪 Almacén' },
+    { value: 'revendedor', label: '🤝 Revendedor' },
     { value: 'mayorista', label: '📦 Mayorista' },
     { value: 'minorista', label: '🛒 Minorista' },
 ];
@@ -303,7 +304,7 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                     <form onSubmit={handleSave} className="modal-form">
                         <div className="form-group">
                             <label>Nombre del Cliente / Negocio *</label>
-                            <input type="text" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: Carnicería Don Pedro" required />
+                            <input type="text" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: Dietética El Sol" required />
                         </div>
                         <div className="form-row">
                             <div className="form-group">
@@ -402,7 +403,7 @@ const ClientProfiles = ({ clientes = [], productos = [], compras = [], ventas = 
                 <form onSubmit={handleSave} className="modal-form">
                     <div className="form-group">
                         <label>Nombre del Cliente / Negocio *</label>
-                        <input type="text" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: Carnicería Don Pedro" required />
+                        <input type="text" value={formData.nombre} onChange={e => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: Dietética El Sol" required />
                     </div>
                     <div className="form-row">
                         <div className="form-group">
@@ -497,11 +498,11 @@ function renderStyles() {
       .search-bar { flex:1; min-width:250px; display:flex; align-items:center; padding:0.75rem 1rem; gap:0.75rem; }
       .search-bar input { border:none; background:transparent; width:100%; outline:none; font-size:0.95rem; color:var(--text); }
       .search-icon { color:var(--text-muted); }
-      .primary-btn { background:var(--primary); color:white; border:none; padding:0.75rem 1.5rem; border-radius:10px; font-weight:600; display:flex; align-items:center; gap:0.5rem; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(249,115,22,0.3); }
+      .primary-btn { background:var(--primary); color:white; border:none; padding:0.75rem 1.5rem; border-radius:10px; font-weight:600; display:flex; align-items:center; gap:0.5rem; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(59,122,87,0.3); }
       .primary-btn:hover { background:var(--primary-hover); transform:translateY(-2px); }
       .primary-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
       .pulse { animation: pulse-shadow 2s infinite; }
-      @keyframes pulse-shadow { 0%{box-shadow:0 0 0 0 rgba(249,115,22,0.4)} 70%{box-shadow:0 0 0 10px rgba(249,115,22,0)} 100%{box-shadow:0 0 0 0 rgba(249,115,22,0)} }
+      @keyframes pulse-shadow { 0%{box-shadow:0 0 0 0 rgba(59,122,87,0.4)} 70%{box-shadow:0 0 0 10px rgba(59,122,87,0)} 100%{box-shadow:0 0 0 0 rgba(59,122,87,0)} }
       .secondary-btn { background:#f1f5f9; color:var(--text); border:1px solid var(--border); padding:0.75rem 1.5rem; border-radius:8px; font-weight:600; cursor:pointer; transition:all 0.2s; }
       .secondary-btn:hover { background:#e2e8f0; }
 
@@ -583,9 +584,9 @@ function renderStyles() {
       .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
       .modal-actions { display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; }
 
-      .margen-group { background:rgba(249,115,22,0.04); padding:0.85rem; border-radius:10px; border:1px solid rgba(249,115,22,0.2); }
-      .margen-group input { border-color:rgba(249,115,22,0.3); font-size:1.1rem; font-weight:600; }
-      .margen-group input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(249,115,22,0.1); }
+      .margen-group { background:rgba(59,122,87,0.04); padding:0.85rem; border-radius:10px; border:1px solid rgba(59,122,87,0.2); }
+      .margen-group input { border-color:rgba(59,122,87,0.3); font-size:1.1rem; font-weight:600; }
+      .margen-group input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,122,87,0.1); }
       .margen-hint { font-size:0.78rem; color:var(--text-muted); font-style:italic; line-height:1.4; }
 
       .generico-toggle { display:flex; align-items:center; gap:0.6rem; padding:0.75rem 0.85rem; background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.2); border-radius:10px; cursor:pointer; font-size:0.85rem; color:var(--text); }
