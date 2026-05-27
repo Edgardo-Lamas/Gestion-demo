@@ -592,7 +592,7 @@ function AppContent({ currentView, setCurrentView }) {
           .sidebar .studio-copyright,
           .sidebar .studio-name,
           .sidebar .studio-tagline {
-            color: rgba(255,255,255,0.35);
+            color: rgba(255,255,255,0.6);
           }
 
           .sidebar .mobile-close-btn {
