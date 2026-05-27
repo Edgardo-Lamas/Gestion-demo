@@ -577,7 +577,7 @@ function AppContent({ currentView, setCurrentView }) {
           }
 
           .sidebar .user-name {
-            color: var(--sidebar-text);
+            color: white;
           }
 
           .sidebar .logout-btn {
@@ -589,10 +589,14 @@ function AppContent({ currentView, setCurrentView }) {
             color: var(--error);
           }
 
-          .sidebar .studio-copyright,
-          .sidebar .studio-name,
+          .sidebar .studio-copyright {
+            color: rgba(255,255,255,0.5);
+          }
+          .sidebar .studio-name {
+            color: rgba(255,255,255,0.8);
+          }
           .sidebar .studio-tagline {
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.5);
           }
 
           .sidebar .mobile-close-btn {

@@ -1,12 +1,44 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ShoppingCart, Phone, Star, TrendingUp, X, Plus, Minus, Search, PackageOpen } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { supabase } from '../lib/supabase';
 
-const B2BStoreFront = ({ productos, costoPromedio }) => {
+const B2BStoreFront = ({ productos: productosProp = [], costoPromedio: costoPromedioProp = {} }) => {
   const { addToast } = useToast();
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [productosData, setProductosData] = useState(productosProp);
+  const [costoData, setCostoData] = useState(costoPromedioProp);
+
+  // Auto-fetch cuando se usa como página pública (sin props)
+  useEffect(() => {
+    if (productosProp.length > 0) return;
+    const fetchData = async () => {
+      const [{ data: prods }, { data: compras }] = await Promise.all([
+        supabase.from('productos').select('*').order('nombre'),
+        supabase.from('compras').select('producto_id, cantidad_disponible, costo_unitario'),
+      ]);
+      if (prods) setProductosData(prods);
+      if (compras) {
+        const costos = {};
+        compras.forEach(c => {
+          if (c.cantidad_disponible > 0) {
+            if (!costos[c.producto_id]) costos[c.producto_id] = { total: 0, kg: 0 };
+            costos[c.producto_id].total += c.costo_unitario * c.cantidad_disponible;
+            costos[c.producto_id].kg += c.cantidad_disponible;
+          }
+        });
+        const resultado = {};
+        Object.entries(costos).forEach(([id, d]) => { resultado[id] = d.kg > 0 ? d.total / d.kg : 0; });
+        setCostoData(resultado);
+      }
+    };
+    fetchData();
+  }, [productosProp.length]);
+
+  const productos = productosData;
+  const costoPromedio = costoData;
 
   // Para el MVP, simulamos categorías y descripciones genéricas si no existen
   const catalogProducts = useMemo(() => {
