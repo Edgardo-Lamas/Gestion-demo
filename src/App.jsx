@@ -285,8 +285,13 @@ function AppContent({ currentView, setCurrentView }) {
                 <rect x="0" y="9.25" width="8" height="3.5" rx="1.75" fill="#c9a227"/>
                 <rect x="0" y="18.5" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
               </svg>
-              <span style={{ fontSize: '0.62rem', color: 'white', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                Studio Lamas
+              <span style={{ display: 'flex', flexDirection: 'column', gap: '0.05rem' }}>
+                <span style={{ fontSize: '0.62rem', color: 'white', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', lineHeight: 1 }}>
+                  Studio Lamas
+                </span>
+                <span style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.06em', textTransform: 'uppercase', lineHeight: 1 }}>
+                  Desarrollo Digital
+                </span>
               </span>
             </a>
           </nav>
