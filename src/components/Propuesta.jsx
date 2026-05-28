@@ -130,6 +130,9 @@ const ROADMAP = [
       { icon: '🌐', name: 'Red de Revendedores', desc: 'Cada revendedor con su portal, catálogo y comisiones calculadas automáticamente. Vender más sin sumar empleados.' },
       { icon: '📱', name: 'App Mobile (PWA)', desc: 'Instalable en el celular sin App Store. El panel completo en tu bolsillo, con notificaciones de pedidos nuevos.' },
       { icon: '📈', name: 'Reportes y exportación Excel', desc: 'Exportación a Excel y PDF con un click. Comparativas por período, top de productos y ranking de clientes para analizar offline.' },
+      { icon: '🤖', name: 'Agi Vendedor 24/7', desc: 'Agi toma pedidos de los clientes directamente desde el portal o el catálogo, fuera del horario comercial. Atiende consultas, recomienda productos según el perfil del cliente y crea el pedido en el sistema sin que Gladys intervenga. El negocio vende mientras duerme.' },
+      { icon: '📲', name: 'Generador de Ventas por WhatsApp', desc: 'Con un click, Gladys comparte el catálogo actualizado en tiempo real por WhatsApp. Cualquier contacto —cliente nuevo, almacén pequeño o consumidor final— puede ver precios reales, hacer su pedido y caer directo al panel de Recepción. B2B y B2C en el mismo flujo, sin doble carga.' },
+      { icon: '🎙️', name: 'Instrucciones por voz a Agi', desc: 'Un botón de micrófono en el chat de Agi: Gladys habla y el sistema transcribe al instante. Ideal para consultas rápidas con las manos ocupadas en el depósito. "Agi, ¿cuántas unidades de El Colono 1kg nos quedan?" — sin tocar el teclado.' },
     ],
   },
   {
@@ -152,12 +155,13 @@ const AGI_HOY = [
 ];
 
 const AGI_ESCALANDO = [
+  { icon: '🛒', text: 'Vendedor 24/7: toma pedidos de clientes desde el portal o catálogo, fuera del horario comercial, sin intervención humana' },
+  { icon: '🎙️', text: 'Instrucciones por voz: Gladys habla y Agi transcribe al instante — consultas sin tocar el teclado' },
   { icon: '📉', text: 'Alertas automáticas cuando el stock de un producto baja del mínimo' },
   { icon: '🔮', text: 'Predicción de demanda: "este producto suele venderse más en julio"' },
-  { icon: '📋', text: 'Reportes narrativos: "Este mes creciste 18% en miel, pero cayeron las esencias"' },
+  { icon: '📋', text: 'Reportes narrativos: "Este mes creciste 18% en yerba orgánica, pero cayeron las conservas"' },
   { icon: '🤝', text: 'Detección de clientes inactivos: "Estos 3 clientes no compran hace 30 días"' },
   { icon: '💬', text: 'Respuestas automáticas por WhatsApp: consultas de precio y stock sin intervención' },
-  { icon: '🛒', text: 'Sugerencias de recompra basadas en el historial de ventas' },
 ];
 
 const AGI_YERBA = [
