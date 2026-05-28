@@ -446,12 +446,32 @@ function AppContent({ currentView, setCurrentView }) {
                       <br /><em>Para compartirle el link a un cliente: entrá a su perfil en Clientes y copiá el link de portal.</em>
                     </p>
 
-                    <h3>🤖 14. Agi — Asistente IA</h3>
+                    <h3>🤖 14. Agi — Gestora inteligente del negocio</h3>
                     <p>
-                      Agi es tu asistente de inteligencia artificial, disponible en el botón flotante de la esquina inferior derecha.
-                      <br />— Podés hacerle preguntas en lenguaje natural: <em>"¿Cuánto vendimos este mes?"</em>, <em>"¿Qué productos tienen stock bajo?"</em>, <em>"¿Cuál fue la venta más grande?"</em>
-                      <br />— Tiene acceso a todos los datos del sistema: ventas, compras, stock, clientes y gastos.
-                      <br />— No reemplaza los módulos, pero es útil para consultas rápidas sin tener que navegar entre pantallas.
+                      Agi es tu asistente de inteligencia artificial, disponible en el botón flotante de la esquina inferior derecha. No es un simple chatbot: es una gestora especializada en tu negocio con tres capacidades distintas.
+                    </p>
+                    <p>
+                      <strong>📊 Consultas sobre tu negocio</strong>
+                      <br />Tiene acceso en tiempo real a todos los datos del sistema. Podés preguntarle en lenguaje natural:
+                      <br />— <em>"¿Cuánto vendimos esta semana?"</em>
+                      <br />— <em>"¿Qué clientes no compraron en el último mes?"</em>
+                      <br />— <em>"¿Qué productos tienen stock crítico?"</em>
+                      <br />— <em>"¿Cuál fue nuestra ganancia neta en mayo?"</em>
+                    </p>
+                    <p>
+                      <strong>🌿 Experta en yerba mate misionera</strong>
+                      <br />Conoce en profundidad los productos del catálogo: tipos de yerba (con palo, sin palo, orgánica, agroecológica), diferencias de calidad, marcas (El Colono, Flor de Jardín, Tucangua y más), formas de almacenamiento y recomendaciones para cada tipo de cliente.
+                      <br />— <em>"¿Qué yerba le recomendás a alguien que quiere empezar a tomar?"</em>
+                      <br />— <em>"¿Cuál es la diferencia entre orgánica y agroecológica?"</em>
+                    </p>
+                    <p>
+                      <strong>✍️ Contenido SEO y comunicación</strong>
+                      <br />Genera texto listo para usar en redes sociales, WhatsApp y la web:
+                      <br />— Descripciones de productos para el catálogo online
+                      <br />— Posts para Instagram con tono natural y misionero
+                      <br />— Mensajes de venta para enviar por WhatsApp a clientes
+                      <br />— Palabras clave para posicionamiento en Google
+                      <br />— <em>"Escribime un post para Instagram del El Colono orgánico"</em>
                     </p>
 
                   </div>
