@@ -11,8 +11,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
     const [nuevoNombre, setNuevoNombre] = useState('');
     const [nuevoCosto, setNuevoCosto] = useState('');
     const [nuevoPrecioB2B, setNuevoPrecioB2B] = useState('');
-    const [nuevoFlete, setNuevoFlete] = useState('');
-    const [nuevoParaSabri, setNuevoParaSabri] = useState(false);
+    const [nuevoVisibleCatalogo, setNuevoVisibleCatalogo] = useState(false);
     const [creando, setCreando] = useState(false);
 
     // Modal editar
@@ -22,8 +21,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
     const [editNombre, setEditNombre] = useState('');
     const [editCosto, setEditCosto] = useState('');
     const [editPrecioB2B, setEditPrecioB2B] = useState('');
-    const [editFlete, setEditFlete] = useState('');
-    const [editParaSabri, setEditParaSabri] = useState(false);
+    const [editVisibleCatalogo, setEditVisibleCatalogo] = useState(false);
     const [editDescuentos, setEditDescuentos] = useState([]); // [{cliente_id, margen_ganancia}]
     const [addDescClienteId, setAddDescClienteId] = useState('');
     const [addDescMargen, setAddDescMargen] = useState('');
@@ -33,8 +31,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
         setEditNombre(p.nombre);
         setEditCosto(p.costo_referencia != null ? String(p.costo_referencia) : '');
         setEditPrecioB2B(p.precio_catalogo != null ? String(p.precio_catalogo) : '');
-        setEditFlete(p.flete_sabri != null ? String(p.flete_sabri) : '');
-        setEditParaSabri(p.para_sabri === true);
+        setEditVisibleCatalogo(p.visible_catalogo === true);
         setEditDescuentos(descuentos.filter(d => d.producto_id === p.id).map(d => ({ cliente_id: d.cliente_id, margen_ganancia: d.margen_ganancia })));
         setAddDescClienteId('');
         setAddDescMargen('');
@@ -50,8 +47,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
             nombre: editNombre.trim(),
             costo_referencia: parseFloat(editCosto) || 0,
             precio_catalogo: parseFloat(editPrecioB2B) || 0,
-            flete_sabri: parseFloat(editFlete) || 0,
-            para_sabri: editParaSabri,
+            visible_catalogo: editVisibleCatalogo,
         }).eq('id', editProducto.id);
 
         setEditando(false);
@@ -82,8 +78,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
             nombre: nuevoNombre.trim(),
             costo_referencia: parseFloat(nuevoCosto) || 0,
             precio_catalogo: parseFloat(nuevoPrecioB2B) || 0,
-            flete_sabri: parseFloat(nuevoFlete) || 0,
-            para_sabri: nuevoParaSabri,
+            visible_catalogo: nuevoVisibleCatalogo,
             oculto_catalogo: false,
         }]);
 
@@ -97,8 +92,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
         setNuevoNombre('');
         setNuevoCosto('');
         setNuevoPrecioB2B('');
-        setNuevoFlete('');
-        setNuevoParaSabri(false);
+        setNuevoVisibleCatalogo(false);
         setShowCrear(false);
         if (onUpdate) onUpdate();
     };
@@ -263,7 +257,7 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                                 </span>
                                             </td>
                                             <td style={{ textAlign: 'center' }}>
-                                                {p.para_sabri
+                                                {p.visible_catalogo
                                                     ? <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '0.2rem 0.6rem', borderRadius: '10px', border: '1px solid rgba(16,185,129,0.25)' }}>✓ B2B</span>
                                                     : <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>—</span>
                                                 }
@@ -348,26 +342,11 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                         />
                                     </div>
                                 </div>
-                                <div>
-                                    <label style={labelStyle}>Flete distribución ($)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="10"
-                                        value={nuevoFlete}
-                                        onChange={e => setNuevoFlete(e.target.value)}
-                                        placeholder="0"
-                                        style={fieldStyle}
-                                    />
-                                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '0.4rem 0 0' }}>
-                                        Costo de logística que se descuenta antes de dividir el margen
-                                    </p>
-                                </div>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', userSelect: 'none' }}>
                                     <input
                                         type="checkbox"
-                                        checked={nuevoParaSabri}
-                                        onChange={e => setNuevoParaSabri(e.target.checked)}
+                                        checked={nuevoVisibleCatalogo}
+                                        onChange={e => setNuevoVisibleCatalogo(e.target.checked)}
                                         style={{ width: '16px', height: '16px', accentColor: '#10b981', cursor: 'pointer' }}
                                     />
                                     <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}>
@@ -443,26 +422,11 @@ const Products = ({ productos, stock_actual, clientes = [], descuentos = [], onU
                                         />
                                     </div>
                                 </div>
-                                <div>
-                                    <label style={labelStyle}>Flete distribución ($)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="10"
-                                        value={editFlete}
-                                        onChange={e => setEditFlete(e.target.value)}
-                                        placeholder="0"
-                                        style={fieldStyle}
-                                    />
-                                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '0.4rem 0 0' }}>
-                                        Costo de logística que se descuenta antes de dividir el margen
-                                    </p>
-                                </div>
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', userSelect: 'none' }}>
                                     <input
                                         type="checkbox"
-                                        checked={editParaSabri}
-                                        onChange={e => setEditParaSabri(e.target.checked)}
+                                        checked={editVisibleCatalogo}
+                                        onChange={e => setEditVisibleCatalogo(e.target.checked)}
                                         style={{ width: '16px', height: '16px', accentColor: '#10b981', cursor: 'pointer' }}
                                     />
                                     <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}>
