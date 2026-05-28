@@ -267,23 +267,28 @@ function AppContent({ currentView, setCurrentView }) {
             </div>
 
             {/* Studio Lamas signature */}
-            <div className="studio-brand">
-              <span className="studio-copyright">© 2026 Edgardo Lamas</span>
-              <div className="studio-identity">
-                <div className="studio-mark" aria-hidden="true">
-                  <svg viewBox="0 0 14 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="0" y="0" width="3.5" height="22" rx="1.75" fill="#c9a227"/>
-                    <rect x="0" y="0" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
-                    <rect x="0" y="9.25" width="8" height="3.5" rx="1.75" fill="#c9a227"/>
-                    <rect x="0" y="18.5" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
-                  </svg>
-                </div>
-                <div className="studio-text">
-                  <span className="studio-name">Studio Lamas</span>
-                  <span className="studio-tagline">Desarrollo Digital</span>
-                </div>
-              </div>
-            </div>
+            <a
+              href="https://studio-lamas.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
+                paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)',
+                opacity: 0.4, textDecoration: 'none', transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '0.4'}
+            >
+              <svg viewBox="0 0 14 22" fill="none" width="10" height="16" aria-hidden="true">
+                <rect x="0" y="0" width="3.5" height="22" rx="1.75" fill="#c9a227"/>
+                <rect x="0" y="0" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
+                <rect x="0" y="9.25" width="8" height="3.5" rx="1.75" fill="#c9a227"/>
+                <rect x="0" y="18.5" width="11" height="3.5" rx="1.75" fill="#c9a227"/>
+              </svg>
+              <span style={{ fontSize: '0.62rem', color: 'white', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                Studio Lamas
+              </span>
+            </a>
           </nav>
 
           <main className="content">
@@ -589,16 +594,6 @@ function AppContent({ currentView, setCurrentView }) {
             color: var(--error);
           }
 
-          .sidebar .studio-copyright {
-            color: rgba(255,255,255,0.5);
-          }
-          .sidebar .studio-name {
-            color: rgba(255,255,255,0.8);
-          }
-          .sidebar .studio-tagline {
-            color: rgba(255,255,255,0.5);
-          }
-
           .sidebar .mobile-close-btn {
             color: var(--sidebar-muted);
           }
@@ -874,62 +869,6 @@ function AppContent({ currentView, setCurrentView }) {
           @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-          }
-
-          /* Studio Lamas signature */
-          .studio-brand {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid rgba(255,255,255,0.06);
-          }
-
-          .studio-copyright {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            letter-spacing: 0.02em;
-          }
-
-          .studio-identity {
-            display: flex;
-            align-items: center;
-            gap: 0.625rem;
-          }
-
-          .studio-mark {
-            width: 14px;
-            height: 22px;
-            flex-shrink: 0;
-            opacity: 0.7;
-          }
-
-          .studio-mark svg {
-            width: 100%;
-            height: 100%;
-          }
-
-          .studio-text {
-            display: flex;
-            flex-direction: column;
-            gap: 0.1rem;
-          }
-
-          .studio-name {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.02em;
-            line-height: 1;
-          }
-
-          .studio-tagline {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            line-height: 1;
-            opacity: 0.7;
           }
 
           /* User/Logout additions */

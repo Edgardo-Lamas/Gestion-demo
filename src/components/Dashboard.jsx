@@ -10,6 +10,9 @@ import {
 import {
     AreaChart,
     Area,
+    BarChart,
+    Bar,
+    Cell,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -103,6 +106,19 @@ const Dashboard = ({ compras, ventas, gastos, productos, stock_actual, onNavigat
         return Object.values(data).sort((a, b) => new Date(a.name) - new Date(b.name)).slice(-7);
     }, [ventas, gastos]);
 
+    const dataGastosCat = useMemo(() => {
+        const data = {};
+        (gastos || []).forEach(g => {
+            const cat = g.categoria || 'Otros';
+            if (!data[cat]) data[cat] = 0;
+            data[cat] += (g.monto || 0);
+        });
+        return Object.entries(data)
+            .map(([name, value]) => ({ name, value }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 6);
+    }, [gastos]);
+
     const dataVentasProducto = useMemo(() => {
         const data = {};
         (ventas || []).forEach(v => {
@@ -147,6 +163,7 @@ const Dashboard = ({ compras, ventas, gastos, productos, stock_actual, onNavigat
     const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
 
     const COLORS = ['#3B7A57', '#C9A84C', '#8B5E3C', '#8b5cf6', '#0ea5e9'];
+    const GASTOS_COLORS = ['#C9A84C', '#8B5E3C', '#3B7A57', '#0ea5e9', '#8b5cf6', '#f59e0b'];
 
     const tarjetas = [
         { label: 'Ingresos Totales', value: estadisticas.total_ingresos, icon: DollarSign, color: '#3B7A57' },
@@ -335,13 +352,13 @@ const Dashboard = ({ compras, ventas, gastos, productos, stock_actual, onNavigat
 
             {/* ── GRÁFICOS ── */}
             <div className="charts-grid">
-                <section className="glass-card chart-card">
+                <section className="glass-card chart-card chart-card-double">
                     <h3>Ingresos vs Gastos</h3>
                     <p className="chart-hint">
                         <span style={{ color: '#10b981' }}>■</span> Ingresos &nbsp;
                         <span style={{ color: '#ef4444' }}>■</span> Gastos — últimos 7 días con actividad
                     </p>
-                    <ResponsiveContainer width="100%" height={280}>
+                    <ResponsiveContainer width="100%" height={210}>
                         <AreaChart data={dataIngresosGastos}>
                             <defs>
                                 <linearGradient id="gIngresos" x1="0" y1="0" x2="0" y2="1">
@@ -366,6 +383,51 @@ const Dashboard = ({ compras, ventas, gastos, productos, stock_actual, onNavigat
                             <Area type="monotone" dataKey="gastos" stroke="#ef4444" fill="url(#gGastos)" name="Gastos" />
                         </AreaChart>
                     </ResponsiveContainer>
+
+                    <div className="chart-divider" />
+
+                    <h3>Egresos por categoría</h3>
+                    <p className="chart-hint">¿En qué se está gastando el negocio?</p>
+                    {dataGastosCat.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={dataGastosCat.length * 38 + 16}>
+                            <BarChart
+                                data={dataGastosCat}
+                                layout="vertical"
+                                margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
+                            >
+                                <XAxis
+                                    type="number"
+                                    stroke="#94a3b8"
+                                    fontSize={11}
+                                    tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <YAxis
+                                    type="category"
+                                    dataKey="name"
+                                    stroke="#94a3b8"
+                                    fontSize={11}
+                                    width={88}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+                                <Tooltip
+                                    contentStyle={{ background: 'rgba(255,255,255,0.97)', borderRadius: 8, border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                    formatter={v => [`$${v.toLocaleString('es-AR')}`, 'Total']}
+                                    cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                                />
+                                <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={22}>
+                                    {dataGastosCat.map((_, i) => (
+                                        <Cell key={i} fill={GASTOS_COLORS[i % GASTOS_COLORS.length]} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <p className="no-data">Registrá gastos para ver el desglose</p>
+                    )}
                 </section>
 
                 <section className="glass-card chart-card">
@@ -1051,6 +1113,17 @@ const Dashboard = ({ compras, ventas, gastos, productos, stock_actual, onNavigat
                 }
 
                 .no-data { color: var(--text-muted); font-style: italic; font-size: 0.9rem; }
+
+                .chart-divider {
+                    height: 1px;
+                    background: var(--border);
+                    margin: 1.5rem 0 1.25rem;
+                }
+
+                .chart-card-double {
+                    display: flex;
+                    flex-direction: column;
+                }
 
                 /* ── FOOTER ── */
                 .db-footer {
