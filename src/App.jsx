@@ -650,6 +650,8 @@ function AppContent({ currentView, setCurrentView }) {
             flex-direction: column;
             gap: 0.5rem;
             flex: 1;
+            min-height: 0;
+            overflow-y: auto;
           }
 
           .nav-item {
@@ -685,7 +687,7 @@ function AppContent({ currentView, setCurrentView }) {
             gap: 0.75rem;
             padding-top: 1rem;
             border-top: 1px solid var(--border);
-            margin-top: auto;
+            flex-shrink: 0;
           }
 
           .user-avatar {
