@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Fondo verde oscuro AGIAPURR -->
+  <rect width="32" height="32" rx="7" fill="#1B3A2A"/>
+  <!-- Hoja orgánica -->
+  <path d="M16 4 C9 4 4 9 4 17 C4 23 8 28 16 28 C24 28 28 21 28 14 C28 7 22 4 16 4 Z" fill="#3B7A57"/>
+  <!-- Vena central dorada -->
+  <line x1="16" y1="7" x2="16" y2="26" stroke="#C9A84C" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Venas laterales -->
+  <line x1="16" y1="12" x2="21" y2="9"  stroke="#C9A84C" stroke-width="1.1" stroke-linecap="round" opacity="0.85"/>
+  <line x1="16" y1="16" x2="22" y2="14" stroke="#C9A84C" stroke-width="1.1" stroke-linecap="round" opacity="0.85"/>
+  <line x1="16" y1="20" x2="21" y2="19" stroke="#C9A84C" stroke-width="1.1" stroke-linecap="round" opacity="0.85"/>
+</svg>

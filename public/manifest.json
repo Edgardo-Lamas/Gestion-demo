@@ -1,15 +1,15 @@
 {
-  "name": "Gestión Sabri",
-  "short_name": "Gestión Sabri",
-  "description": "Panel de control para carnicería",
+  "name": "AGIAPURR Gestión",
+  "short_name": "AGIAPURR",
+  "description": "Sistema de gestión para AGIAPURR Distribuidora",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#f97316",
+  "background_color": "#1B3A2A",
+  "theme_color": "#1B3A2A",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-sabri.svg",
+      "src": "/icon-agiapurr.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
