@@ -209,13 +209,18 @@ Edgardo Lamas — Studio Lamas · Desarrollo Digital
 
 ---
 
-## 11. Próxima Sesión
+## 11. Estado post-sesión mayo 2026
 
-1. **Demo en vivo con AGIAPURR** — presentar sistema con credenciales `admin@agiapurr.com`
-2. **Favicon** — crear `/public/icon-agiapurr.svg` y linkear en `index.html`
-3. **Migración DB** — renombrar `para_sabri`/`flete_sabri` → nombres AGIAPURR
-4. **UX mobile** — verificar Pedidos/Armado/Reparto en celular
-5. **RLS Supabase** — una vez aprobado el proyecto, activar antes de entregar en producción
+### Completado ✅
+- Favicon AGIAPURR (`/public/icon-agiapurr.svg`) + manifest PWA actualizado
+- Migración DB: `para_sabri` → `visible_catalogo` (columna ya existía), `flete_sabri` eliminado del formulario (nunca existió en AGIAPURR)
+- Firma Studio Lamas en sidebar: `<a>` link a portfolio, mismo estilo que Login
+- Gráfico "Egresos por categoría" (BarChart horizontal) debajo de Ingresos vs Gastos
+- Guía de uso: sección Agi reescrita con sus 3 capacidades reales
+
+### Pendiente — condicional a aprobación del cliente ⏳
+- **UX mobile** — verificar Pedidos/Armado/Reparto en celular
+- **RLS Supabase** — activar Row Level Security por roles antes de producción real
 
 ---
 
